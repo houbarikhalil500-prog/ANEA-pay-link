@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>ANAE-Pay Link | منصة المقاول الذاتي للمدفوعات الرقمية</title>
-  <meta name="description" content="منصة المقاول الذاتي للمدفوعات الرقمية - Single-file FinTech payment link generator, automated 5% tax-compliant digital invoices, and live Algerian banking ledger for Auto-Entrepreneurs." />
+  <meta name="description" content="منصة المقاول الذاتي للمدفوعات الرقمية - Single-file FinTech payment link generator, automated 5% tax-compliant digital invoices, password-protected secure vault, and live Algerian banking ledger for Auto-Entrepreneurs." />
   
   <!-- Google Fonts: Plus Jakarta Sans, IBM Plex Sans Arabic, JetBrains Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -84,6 +84,14 @@
     ::-webkit-scrollbar-thumb:hover {
       background: #334155;
     }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-6px); }
+      40%, 80% { transform: translateX(6px); }
+    }
+    .animate-shake {
+      animation: shake 0.4s ease-in-out;
+    }
   </style>
 </head>
 <body class="min-h-screen bg-[#090d16] text-slate-100 flex flex-col selection:bg-emerald-500 selection:text-slate-950 antialiased">
@@ -123,6 +131,7 @@
           Tax Invoices (5%)
         </button>
         <button onclick="openVaultModal()" class="hover:text-white py-1 transition-colors whitespace-nowrap shrink-0 flex items-center gap-1.5">
+          <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
           <span>Gateway Vault</span>
           <span id="nav-vault-status-badge" class="text-[10px] text-emerald-400 font-mono bg-emerald-950/80 border border-emerald-500/40 px-1.5 py-0.2 rounded">
             ACTIVE
@@ -151,8 +160,9 @@
       <button onclick="switchView('invoices')" id="mob-nav-invoices" class="px-2.5 py-1 rounded text-slate-400 whitespace-nowrap">
         Invoices
       </button>
-      <button onclick="openVaultModal()" class="px-2.5 py-1 rounded text-slate-400 whitespace-nowrap">
-        Vault
+      <button onclick="openVaultModal()" class="px-2.5 py-1 rounded text-slate-400 whitespace-nowrap flex items-center gap-1">
+        <svg class="w-3 h-3 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+        <span>Vault</span>
       </button>
     </div>
   </header>
@@ -187,8 +197,9 @@
             0079••••••••••••0381
           </span>
         </div>
-        <button onclick="openVaultModal()" class="px-3.5 py-2 text-xs font-medium rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-colors whitespace-nowrap">
-          Bank & Vault Settings
+        <button onclick="openVaultModal()" class="px-3.5 py-2 text-xs font-medium rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-colors whitespace-nowrap flex items-center gap-1.5">
+          <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+          <span>تعديل إعدادات الحساب البنكي والخزنة</span>
         </button>
       </div>
     </div>
@@ -433,84 +444,170 @@
   <!-- 4. MODALS CONTAINER                                                       -->
   <!-- ========================================================================= -->
 
-  <!-- MODAL 1: VAULT MANAGEMENT MODAL -->
+  <!-- MODAL 1: VAULT MANAGEMENT MODAL WITH STRICT PASSWORD PROTECTION -->
   <div id="vaultModal" class="fixed inset-0 z-50 bg-[#090d16]/85 backdrop-blur-sm hidden items-center justify-center p-4 overflow-y-auto">
     <div class="bg-[#0f172a] border border-slate-800 rounded-xl p-6 sm:p-8 max-w-2xl w-full my-8 space-y-6 shadow-2xl relative">
+      
+      <!-- Top Modal Header -->
       <div class="flex items-center justify-between pb-4 border-b border-slate-800">
-        <div>
-          <h3 class="text-lg font-bold text-white tracking-tight">ANAE Vault & Gateway Configuration</h3>
-          <p class="text-xs text-slate-400 font-arabic mt-0.5">خزنة الربط الآمن لبيانات بطاقة المقاول الذاتي والحساب البنكي ومفاتيح Chargily Pay</p>
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+          </div>
+          <div>
+            <h3 class="text-lg font-bold text-white tracking-tight">ANAE Vault & Financial Infrastructure</h3>
+            <p class="text-xs text-slate-400 font-arabic mt-0.5">خزنة الحساب البنكي الجزائري والمفاتيح السرية لبوابة الدفع</p>
+          </div>
         </div>
         <button onclick="closeVaultModal()" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
         </button>
       </div>
 
-      <div id="vaultFeedback" class="hidden p-3 rounded-lg border text-xs"></div>
-
-      <form id="vaultForm" onsubmit="handleSaveVault(event)" class="space-y-4">
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label class="block text-xs font-medium text-slate-400 mb-1">Business Name (الاسم التجاري)</label>
-            <input type="text" id="v_business_name" required class="w-full px-3 py-2 bg-[#090d16] border border-slate-700 rounded-lg text-xs text-white focus:outline-none focus:border-emerald-500" />
+      <!-- 1.1 PASSWORD CHALLENGE & SETUP OVERLAY (GATEWAY TO VAULT) -->
+      <div id="vault-auth-view" class="space-y-5 py-2">
+        <div class="p-4 rounded-xl bg-[#090d16] border border-slate-800 text-center space-y-2">
+          <div class="w-12 h-12 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto mb-1">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
           </div>
-          <div>
-            <label class="block text-xs font-medium text-slate-400 mb-1">ANAE Card Number (رقم بطاقة المقاول)</label>
-            <input type="text" id="v_anae_card" required placeholder="24-0014892" class="w-full px-3 py-2 bg-[#090d16] border border-slate-700 rounded-lg text-xs text-white font-mono focus:outline-none focus:border-emerald-500" />
-          </div>
+          <h4 id="auth-challenge-title" class="text-base font-bold text-white">Merchant Master Password Authentication</h4>
+          <p id="auth-challenge-desc" class="text-xs text-slate-400 font-arabic max-w-md mx-auto">
+            هذه المنطقة محمية بكلمة مرور رئيسية لحماية بيانات الحساب البنكي (RIB) والمفاتيح البرمجية السرية لبوابة الدفع من العملاء والمتصفحين.
+          </p>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label class="block text-xs font-medium text-slate-400 mb-1">NIF (20 Digits - رقم التعريف الجبائي)</label>
-            <input type="text" id="v_nif" maxlength="15" required placeholder="19719020004318501980" class="w-full px-3 py-2 bg-[#090d16] border border-slate-700 rounded-lg text-xs text-white font-mono focus:outline-none focus:border-emerald-500" />
+        <div id="auth-error-banner" class="hidden p-3 rounded-lg border bg-rose-950/60 border-rose-500 text-rose-300 text-xs text-center font-arabic"></div>
+
+        <!-- Initial Password Setup Form (if not configured yet) -->
+        <div id="auth-setup-container" class="space-y-4 hidden">
+          <div class="space-y-3">
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">New Master Password (إنشاء كلمة مرور رئيسية جديدة)</label>
+              <input type="password" id="vault_new_pw" placeholder="Enter secure password (min 6 characters)" class="w-full px-3 py-2.5 bg-[#090d16] border border-slate-700 rounded-lg text-xs text-white focus:outline-none focus:border-emerald-500" />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Confirm Master Password (تأكيد كلمة المرور)</label>
+              <input type="password" id="vault_confirm_pw" placeholder="Re-type password" class="w-full px-3 py-2.5 bg-[#090d16] border border-slate-700 rounded-lg text-xs text-white focus:outline-none focus:border-emerald-500" />
+            </div>
           </div>
-          <div>
-            <label class="block text-xs font-medium text-slate-400 mb-1">Bank Name (البنك أو المؤسسة المالية)</label>
-            <select id="v_bank_name" class="w-full px-3 py-2 bg-[#090d16] border border-slate-700 rounded-lg text-xs text-white focus:outline-none focus:border-emerald-500">
-              <option value="Algérie Poste (BaridiMob / CCP)">Algérie Poste (BaridiMob / CCP)</option>
-              <option value="Banque Nationale d'Algérie (BNA)">Banque Nationale d'Algérie (BNA)</option>
-              <option value="Banque Extérieure d'Algérie (BEA)">Banque Extérieure d'Algérie (BEA)</option>
-              <option value="Crédit Populaire d'Algérie (CPA)">Crédit Populaire d'Algérie (CPA)</option>
-              <option value="Banque de Développement Local (BDL)">Banque de Développement Local (BDL)</option>
-              <option value="Caisse Nationale d'Epargne (CNEP)">Caisse Nationale d'Epargne (CNEP)</option>
-            </select>
-          </div>
+          <button type="button" onclick="handleSetupMasterPassword()" class="w-full py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold transition-all shadow-md">
+            Set Master Password & Access Vault
+          </button>
         </div>
 
-        <div>
-          <label class="block text-xs font-medium text-slate-400 mb-1">Local Bank RIB (20 Digits - رقم الحساب الكامل)</label>
-          <input type="text" id="v_rib" maxlength="20" required placeholder="00799999000184920381" class="w-full px-3 py-2 bg-[#090d16] border border-slate-700 rounded-lg text-xs text-white font-mono tracking-wider focus:outline-none focus:border-emerald-500" />
+        <!-- Password Verification Form (if already configured) -->
+        <div id="auth-unlock-container" class="space-y-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Enter Master Password (أدخل كلمة المرور لفك تشفير الخزنة)</label>
+            <div class="relative">
+              <input type="password" id="vault_auth_input" onkeydown="if(event.key === 'Enter') handleUnlockVault()" placeholder="••••••••" class="w-full px-3 py-2.5 bg-[#090d16] border border-slate-700 rounded-lg text-sm text-white focus:outline-none focus:border-emerald-500 font-mono tracking-widest" />
+            </div>
+          </div>
+          <button type="button" id="btnUnlockVault" onclick="handleUnlockVault()" class="w-full py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold transition-all shadow-md shadow-emerald-500/20 flex items-center justify-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"></path></svg>
+            <span>Unlock Financial Infrastructure (فتح الخزنة)</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 1.2 UNLOCKED VAULT FIELDS (Rendered only upon successful password verification) -->
+      <div id="vault-fields-view" class="space-y-4 hidden">
+        <div class="flex items-center justify-between p-3 rounded-lg bg-emerald-950/40 border border-emerald-500/30 text-xs text-emerald-300">
+          <span class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+            <span>Vault Decrypted & Unlocked for this session</span>
+          </span>
+          <button type="button" onclick="lockVault()" class="text-[11px] underline text-slate-400 hover:text-white">
+            Lock Vault Now
+          </button>
         </div>
 
-        <div class="pt-3 border-t border-slate-800 space-y-3">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-semibold text-slate-300">Chargily Pay v2 API Tokens</span>
-            <label class="flex items-center gap-1.5 text-xs text-slate-400 font-mono cursor-pointer">
-              <input type="checkbox" id="v_live_mode" class="rounded border-slate-700 bg-slate-900 text-emerald-500" />
-              <span>Production (Live Mode)</span>
-            </label>
+        <div id="vaultFeedback" class="hidden p-3 rounded-lg border text-xs"></div>
+
+        <form id="vaultForm" onsubmit="handleSaveVault(event)" class="space-y-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-medium text-slate-400 mb-1">Business Name (الاسم التجاري)</label>
+              <input type="text" id="v_business_name" required class="w-full px-3 py-2 bg-[#090d16] border border-slate-700 rounded-lg text-xs text-white focus:outline-none focus:border-emerald-500" />
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-slate-400 mb-1">ANAE Card Number (رقم بطاقة المقاول)</label>
+              <input type="text" id="v_anae_card" required placeholder="24-0014892" class="w-full px-3 py-2 bg-[#090d16] border border-slate-700 rounded-lg text-xs text-white font-mono focus:outline-none focus:border-emerald-500" />
+            </div>
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label class="block text-[11px] font-medium text-slate-400 mb-1">Public Key</label>
-              <input type="text" id="v_chargily_pk" placeholder="test_pk_..." class="w-full px-3 py-2 bg-[#090d16] border border-slate-700 rounded-lg text-xs text-white font-mono focus:outline-none focus:border-emerald-500" />
+              <label class="block text-xs font-medium text-slate-400 mb-1">
+                NIF (الرقم الجبائي - Max 20 Characters) *
+              </label>
+              <!-- Compliant NIF input with exactly maxlength="20" -->
+              <input
+                type="text"
+                id="v_nif"
+                maxlength="20"
+                required
+                placeholder="002416001489255"
+                class="w-full px-3 py-2 bg-[#090d16] border border-slate-700 rounded-lg text-xs text-white font-mono focus:outline-none focus:border-emerald-500"
+              />
+              <span class="text-[10px] text-slate-500 mt-0.5 block">متوافق مع قاعدة بيانات المقاول الذاتي المحينة (حتى 20 رقماً)</span>
             </div>
             <div>
-              <label class="block text-[11px] font-medium text-slate-400 mb-1">Secret Key (Token)</label>
-              <input type="password" id="v_chargily_sk" placeholder="test_sk_..." class="w-full px-3 py-2 bg-[#090d16] border border-slate-700 rounded-lg text-xs text-white font-mono focus:outline-none focus:border-emerald-500" />
+              <label class="block text-xs font-medium text-slate-400 mb-1">Bank Name (البنك أو المؤسسة المالية)</label>
+              <select id="v_bank_name" class="w-full px-3 py-2 bg-[#090d16] border border-slate-700 rounded-lg text-xs text-white focus:outline-none focus:border-emerald-500">
+                <option value="Algérie Poste (BaridiMob / CCP)">Algérie Poste (BaridiMob / CCP)</option>
+                <option value="Banque Nationale d'Algérie (BNA)">Banque Nationale d'Algérie (BNA)</option>
+                <option value="Banque Extérieure d'Algérie (BEA)">Banque Extérieure d'Algérie (BEA)</option>
+                <option value="Crédit Populaire d'Algérie (CPA)">Crédit Populaire d'Algérie (CPA)</option>
+                <option value="Banque de Développement Local (BDL)">Banque de Développement Local (BDL)</option>
+                <option value="Caisse Nationale d'Epargne (CNEP)">Caisse Nationale d'Epargne (CNEP)</option>
+              </select>
             </div>
           </div>
-        </div>
 
-        <div class="pt-4 flex items-center justify-end gap-3 border-t border-slate-800">
-          <button type="button" onclick="closeVaultModal()" class="px-4 py-2 rounded-lg border border-slate-700 text-xs text-slate-300 hover:bg-slate-800">Cancel</button>
-          <button type="submit" class="px-6 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold transition-all shadow-md shadow-emerald-500/20">
-            Save & Activate Vault
-          </button>
-        </div>
-      </form>
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1">Local Bank RIB (20 Digits - رقم الحساب الكامل)</label>
+            <input type="text" id="v_rib" maxlength="20" required placeholder="00799999000184920381" class="w-full px-3 py-2 bg-[#090d16] border border-slate-700 rounded-lg text-xs text-white font-mono tracking-wider focus:outline-none focus:border-emerald-500" />
+          </div>
+
+          <div class="pt-3 border-t border-slate-800 space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold text-slate-300">Chargily Pay v2 API Tokens</span>
+              <label class="flex items-center gap-1.5 text-xs text-slate-400 font-mono cursor-pointer">
+                <input type="checkbox" id="v_live_mode" class="rounded border-slate-700 bg-slate-900 text-emerald-500" />
+                <span>Production (Live Mode)</span>
+              </label>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-[11px] font-medium text-slate-400 mb-1">Public Key</label>
+                <input type="text" id="v_chargily_pk" placeholder="test_pk_..." class="w-full px-3 py-2 bg-[#090d16] border border-slate-700 rounded-lg text-xs text-white font-mono focus:outline-none focus:border-emerald-500" />
+              </div>
+              <div>
+                <label class="block text-[11px] font-medium text-slate-400 mb-1">Secret Key (Token)</label>
+                <input type="password" id="v_chargily_sk" placeholder="test_sk_..." class="w-full px-3 py-2 bg-[#090d16] border border-slate-700 rounded-lg text-xs text-white font-mono focus:outline-none focus:border-emerald-500" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Master Password Management Option -->
+          <div class="pt-3 border-t border-slate-800 flex items-center justify-between text-xs">
+            <span class="text-slate-400">Security Gate: Active (Master Password Configured)</span>
+            <button type="button" onclick="promptChangePassword()" class="text-emerald-400 hover:underline text-[11px]">
+              Change Master Password
+            </button>
+          </div>
+
+          <div class="pt-4 flex items-center justify-end gap-3 border-t border-slate-800">
+            <button type="button" onclick="closeVaultModal()" class="px-4 py-2 rounded-lg border border-slate-700 text-xs text-slate-300 hover:bg-slate-800">Close</button>
+            <button type="submit" class="px-6 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold transition-all shadow-md shadow-emerald-500/20">
+              Save & Activate Vault
+            </button>
+          </div>
+        </form>
+      </div>
+
     </div>
   </div>
 
@@ -1095,9 +1192,145 @@
     }
 
     // ---------------------------------------------------------------------------
-    // F. MODULE 1: VAULT MODAL LOGIC
+    // F. MODULE 1: VAULT SECURITY GATE & PASSWORD VALIDATION ENGINE
     // ---------------------------------------------------------------------------
+    let isVaultUnlocked = false;
+
+    // Helper: SHA-256 hash using native Web Crypto API
+    async function hashPassword(str) {
+      const msgBuffer = new TextEncoder().encode(str);
+      const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
     function openVaultModal() {
+      const modal = document.getElementById('vaultModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+
+      const savedHash = localStorage.getItem('anae_vault_master_hash');
+      const authView = document.getElementById('vault-auth-view');
+      const fieldsView = document.getElementById('vault-fields-view');
+      const setupContainer = document.getElementById('auth-setup-container');
+      const unlockContainer = document.getElementById('auth-unlock-container');
+      const errorBanner = document.getElementById('auth-error-banner');
+
+      errorBanner.classList.add('hidden');
+      errorBanner.textContent = '';
+
+      // If already unlocked during active session, reveal fields
+      if (isVaultUnlocked) {
+        authView.classList.add('hidden');
+        fieldsView.classList.remove('hidden');
+        populateVaultFormFields();
+        return;
+      }
+
+      // If locked, show security challenge
+      authView.classList.remove('hidden');
+      fieldsView.classList.add('hidden');
+
+      if (!savedHash) {
+        // Initial setup needed
+        document.getElementById('auth-challenge-title').textContent = 'Initial Setup: Create Master Vault Password';
+        document.getElementById('auth-challenge-desc').textContent = 'لم تقم بتعيين كلمة مرور لحماية الخزنة بعد. يرجى إنشاء كلمة مرور رئيسية قوية لتأمين الحساب البنكي ومفاتيح الربط.';
+        setupContainer.classList.remove('hidden');
+        unlockContainer.classList.add('hidden');
+        setTimeout(() => document.getElementById('vault_new_pw')?.focus(), 100);
+      } else {
+        // Password already exists: challenge user
+        document.getElementById('auth-challenge-title').textContent = 'Merchant Master Password Authentication';
+        document.getElementById('auth-challenge-desc').textContent = 'أدخل كلمة المرور الرئيسية الخاصة بك لفك تشفير وعرض إعدادات الخزنة المصرفية والمفاتيح السرية.';
+        setupContainer.classList.add('hidden');
+        unlockContainer.classList.remove('hidden');
+        document.getElementById('vault_auth_input').value = '';
+        setTimeout(() => document.getElementById('vault_auth_input')?.focus(), 100);
+      }
+    }
+
+    function closeVaultModal() {
+      const modal = document.getElementById('vaultModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+      // Lock vault upon exit for strict privacy
+      isVaultUnlocked = false;
+    }
+
+    function lockVault() {
+      isVaultUnlocked = false;
+      openVaultModal();
+    }
+
+    async function handleSetupMasterPassword() {
+      const pw = document.getElementById('vault_new_pw').value;
+      const confirmPw = document.getElementById('vault_confirm_pw').value;
+      const errorBanner = document.getElementById('auth-error-banner');
+
+      if (!pw || pw.length < 6) {
+        errorBanner.textContent = 'كلمة المرور يجب أن تحتوي على 6 أحرف على الأقل.';
+        errorBanner.classList.remove('hidden');
+        return;
+      }
+
+      if (pw !== confirmPw) {
+        errorBanner.textContent = 'كلمتا المرور غير متطابقتين. يرجى التحقق وإعادة الإدخال.';
+        errorBanner.classList.remove('hidden');
+        return;
+      }
+
+      const hashed = await hashPassword(pw);
+      localStorage.setItem('anae_vault_master_hash', hashed);
+
+      isVaultUnlocked = true;
+      document.getElementById('vault-auth-view').classList.add('hidden');
+      document.getElementById('vault-fields-view').classList.remove('hidden');
+      populateVaultFormFields();
+    }
+
+    async function handleUnlockVault() {
+      const input = document.getElementById('vault_auth_input');
+      const val = input.value;
+      const errorBanner = document.getElementById('auth-error-banner');
+      const savedHash = localStorage.getItem('anae_vault_master_hash');
+
+      if (!val) {
+        errorBanner.textContent = 'يرجى إدخال كلمة المرور.';
+        errorBanner.classList.remove('hidden');
+        input.classList.add('animate-shake', 'border-rose-500');
+        setTimeout(() => input.classList.remove('animate-shake'), 400);
+        return;
+      }
+
+      const inputHash = await hashPassword(val);
+
+      if (inputHash === savedHash) {
+        // Authenticated successfully
+        isVaultUnlocked = true;
+        errorBanner.classList.add('hidden');
+        document.getElementById('vault-auth-view').classList.add('hidden');
+        document.getElementById('vault-fields-view').classList.remove('hidden');
+        populateVaultFormFields();
+      } else {
+        // Authentication failed
+        input.value = '';
+        input.classList.add('animate-shake', 'border-rose-500');
+        errorBanner.textContent = 'كلمة المرور غير صحيحة! تم منع الوصول إلى الخزنة المالية.';
+        errorBanner.classList.remove('hidden');
+        input.focus();
+        setTimeout(() => input.classList.remove('animate-shake'), 400);
+      }
+    }
+
+    function promptChangePassword() {
+      if (confirm('هل تريد تغيير كلمة المرور الرئيسية للخزنة؟')) {
+        localStorage.removeItem('anae_vault_master_hash');
+        isVaultUnlocked = false;
+        openVaultModal();
+      }
+    }
+
+    function populateVaultFormFields() {
       const v = getStoredVault();
       document.getElementById('v_business_name').value = v.business_name || '';
       document.getElementById('v_anae_card').value = v.anae_card_number || '';
@@ -1110,28 +1343,18 @@
 
       const fb = document.getElementById('vaultFeedback');
       fb.className = 'hidden';
-
-      const modal = document.getElementById('vaultModal');
-      modal.classList.remove('hidden');
-      modal.classList.add('flex');
-    }
-
-    function closeVaultModal() {
-      const modal = document.getElementById('vaultModal');
-      modal.classList.add('hidden');
-      modal.classList.remove('flex');
     }
 
     function handleSaveVault(e) {
       e.preventDefault();
       const cleanNif = document.getElementById('v_nif').value.replace(/\D/g, '');
       const cleanRib = document.getElementById('v_rib').value.replace(/\D/g, '');
-
       const fb = document.getElementById('vaultFeedback');
 
-      if (cleanNif.length !== 15) {
+      // Compliance: NIF must be between 15 and 20 digits (updated modern Algerian schema)
+      if (cleanNif.length < 15 || cleanNif.length > 20) {
         fb.className = 'p-3 rounded-lg border bg-rose-950/60 border-rose-500 text-rose-300 text-xs';
-        fb.textContent = 'رقم التعريف الجبائي NIF يجب أن يحتوي على 15 رقماً بالضبط حسب السجل الجبائي الجزائري.';
+        fb.textContent = 'الرقم التعريفي الجبائي NIF يجب أن يحتوي على ما بين 15 و 20 رقماً وفقاً للنظام الجزائري المحين.';
         return;
       }
 
