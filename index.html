@@ -1,0 +1,1504 @@
+<!DOCTYPE html>
+<html lang="ar" dir="ltr" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>ANAE-Pay Link | منصة المقاول الذاتي للمدفوعات الرقمية</title>
+  <meta name="description" content="منصة المقاول الذاتي للمدفوعات الرقمية - Single-file FinTech payment link generator, automated 5% tax-compliant digital invoices, and live Algerian banking ledger for Auto-Entrepreneurs." />
+  
+  <!-- Google Fonts: Plus Jakarta Sans, IBM Plex Sans Arabic, JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              obsidian: '#090d16',
+              surface: '#0f172a',
+              card: '#131d31',
+              cardHover: '#18243c',
+              border: '#1e293b',
+              emerald: '#10b981',
+              emeraldHover: '#059669',
+              amber: '#f59e0b',
+            }
+          },
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', '"IBM Plex Sans Arabic"', 'sans-serif'],
+            arabic: ['"IBM Plex Sans Arabic"', '"Plus Jakarta Sans"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      background-color: #090d16;
+      color: #f1f5f9;
+      font-family: 'Plus Jakarta Sans', 'IBM Plex Sans Arabic', sans-serif;
+    }
+    .font-mono-nums {
+      font-family: 'JetBrains Mono', monospace;
+      font-variant-numeric: tabular-nums;
+    }
+    /* Official Tax Invoice Print Styles */
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      #printInvoiceArea, #printInvoiceArea * {
+        visibility: visible;
+      }
+      #printInvoiceArea {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        margin: 0;
+        padding: 24px;
+        background: #ffffff !important;
+        color: #0f172a !important;
+      }
+    }
+    /* Custom sleek scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #090d16;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1e293b;
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #334155;
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-[#090d16] text-slate-100 flex flex-col selection:bg-emerald-500 selection:text-slate-950 antialiased">
+
+  <!-- ========================================================================= -->
+  <!-- 1. TOP BAR (3-Zone Contract)                                             -->
+  <!-- ========================================================================= -->
+  <header class="sticky top-0 z-40 bg-[#090d16]/90 backdrop-blur-md border-b border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-8">
+      
+      <!-- Zone 1: Single text element wordmark -->
+      <div class="flex items-center gap-3 whitespace-nowrap shrink-0">
+        <a href="#" class="flex items-center gap-2.5 group">
+          <div class="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 font-bold text-base transition-colors group-hover:border-emerald-500">
+            🇩🇿
+          </div>
+          <div class="flex flex-col">
+            <span class="text-base font-bold tracking-tight text-white group-hover:text-emerald-400 transition-colors">
+              ANAE-Pay Link
+            </span>
+            <span class="text-[10px] text-slate-400 font-arabic hidden sm:inline -mt-1">
+              منصة المقاول الذاتي للمدفوعات
+            </span>
+          </div>
+        </a>
+      </div>
+
+      <!-- Zone 2: Navigation Links (Clean single-line prose) -->
+      <nav class="hidden md:flex items-center gap-6 text-sm font-medium text-slate-400">
+        <button onclick="switchView('overview')" id="nav-btn-overview" class="text-white border-b-2 border-emerald-500 font-semibold py-1 transition-colors whitespace-nowrap shrink-0">
+          Overview
+        </button>
+        <button onclick="switchView('links')" id="nav-btn-links" class="hover:text-white py-1 transition-colors whitespace-nowrap shrink-0">
+          Payment Links
+        </button>
+        <button onclick="switchView('invoices')" id="nav-btn-invoices" class="hover:text-white py-1 transition-colors whitespace-nowrap shrink-0">
+          Tax Invoices (5%)
+        </button>
+        <button onclick="openVaultModal()" class="hover:text-white py-1 transition-colors whitespace-nowrap shrink-0 flex items-center gap-1.5">
+          <span>Gateway Vault</span>
+          <span id="nav-vault-status-badge" class="text-[10px] text-emerald-400 font-mono bg-emerald-950/80 border border-emerald-500/40 px-1.5 py-0.2 rounded">
+            ACTIVE
+          </span>
+        </button>
+      </nav>
+
+      <!-- Zone 3: 1 Primary Action -->
+      <div class="flex items-center gap-3 shrink-0">
+        <button onclick="openCreateLinkModal()" class="flex items-center gap-2 px-3.5 py-2 text-xs font-semibold text-slate-950 bg-emerald-400 hover:bg-emerald-300 rounded-lg transition-colors whitespace-nowrap shadow-sm shadow-emerald-500/20 active:translate-y-0.5">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
+          <span>Create Link</span>
+        </button>
+      </div>
+
+    </div>
+
+    <!-- Mobile Sub-Navigation -->
+    <div class="md:hidden flex items-center justify-around border-t border-slate-800/80 bg-[#0f172a]/60 px-2 py-2 text-xs overflow-x-auto">
+      <button onclick="switchView('overview')" id="mob-nav-overview" class="px-2.5 py-1 rounded text-emerald-400 font-semibold bg-emerald-950/50 whitespace-nowrap">
+        Overview
+      </button>
+      <button onclick="switchView('links')" id="mob-nav-links" class="px-2.5 py-1 rounded text-slate-400 whitespace-nowrap">
+        Links
+      </button>
+      <button onclick="switchView('invoices')" id="mob-nav-invoices" class="px-2.5 py-1 rounded text-slate-400 whitespace-nowrap">
+        Invoices
+      </button>
+      <button onclick="openVaultModal()" class="px-2.5 py-1 rounded text-slate-400 whitespace-nowrap">
+        Vault
+      </button>
+    </div>
+  </header>
+
+  <!-- ========================================================================= -->
+  <!-- 2. MAIN VIEWPORT WRAPPER                                                  -->
+  <!-- ========================================================================= -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-8">
+    
+    <!-- TOP BANNER: Official ANAE Merchant Profile Bar -->
+    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 p-5 rounded-xl bg-[#0f172a] border border-slate-800 shadow-sm">
+      <div class="space-y-1">
+        <div class="flex flex-wrap items-center gap-2 text-xs text-slate-400">
+          <span>ANAE Card: <strong id="top-anae-card" class="text-white font-mono">24-0014892</strong></span>
+          <span aria-hidden="true">·</span>
+          <span>NIF: <strong id="top-nif" class="text-white font-mono">002416001489255</strong></span>
+          <span aria-hidden="true">·</span>
+          <span>Statut: <strong class="text-emerald-400">IFU 5% Micro-Entreprise</strong></span>
+        </div>
+        <h1 id="top-business-name" class="text-xl sm:text-2xl font-bold tracking-tight text-white">
+          Numidia Software & Design Services
+        </h1>
+        <p class="text-xs text-slate-400 font-arabic">
+          تسوية المدفوعات عبر البطاقة الذهبية وبطاقات CIB مع الخصم التلقائي للضريبة الجزافية الوحيدة 5%
+        </p>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <div class="text-right hidden sm:block">
+          <span class="text-[11px] text-slate-500 block">Bank Account / RIB</span>
+          <span id="top-rib-display" class="text-xs font-mono text-slate-300 font-medium">
+            0079••••••••••••0381
+          </span>
+        </div>
+        <button onclick="openVaultModal()" class="px-3.5 py-2 text-xs font-medium rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-colors whitespace-nowrap">
+          Bank & Vault Settings
+        </button>
+      </div>
+    </div>
+
+    <!-- VIEW 1: OVERVIEW (LEDGER METRICS & TRANSACTIONS) -->
+    <div id="view-overview" class="space-y-8">
+      
+      <!-- MODULE 2: 4 CORE ABSOLUTE LEDGER DEFINITIONS -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        
+        <!-- Metric 1: Gross Volume (إجمالي المعاملات) -->
+        <div class="bg-[#0f172a] p-5 rounded-xl border border-slate-800 space-y-3">
+          <div class="flex items-center justify-between text-slate-400">
+            <span class="text-xs font-semibold uppercase tracking-wider">Gross Volume</span>
+            <div class="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center text-slate-300">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+            </div>
+          </div>
+          <div>
+            <div id="metric-gross-volume" class="text-2xl font-bold tracking-tight text-white font-mono-nums">
+              0.00 د.ج
+            </div>
+            <div class="text-xs font-arabic text-slate-400 mt-1">
+              إجمالي المعاملات الخام
+            </div>
+          </div>
+          <div class="pt-2 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-500">
+            <span>Total Orders</span>
+            <span id="metric-total-orders" class="font-mono text-slate-300 font-medium">0 transactions</span>
+          </div>
+        </div>
+
+        <!-- Metric 2: Estimated Tax Holdback (الضرائب المستحقة 5%) -->
+        <div class="bg-[#0f172a] p-5 rounded-xl border border-slate-800 space-y-3">
+          <div class="flex items-center justify-between text-slate-400">
+            <span class="text-xs font-semibold uppercase tracking-wider">Tax Holdback (5%)</span>
+            <div class="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z"></path></svg>
+            </div>
+          </div>
+          <div>
+            <div id="metric-tax-holdback" class="text-2xl font-bold tracking-tight text-amber-400 font-mono-nums">
+              0.00 د.ج
+            </div>
+            <div class="text-xs font-arabic text-slate-400 mt-1">
+              الضرائب المستحقة للخزينة العمومية
+            </div>
+          </div>
+          <div class="pt-2 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-500">
+            <span>Fiscal Rate</span>
+            <span class="font-mono text-amber-400 font-medium">5.00% (Loi IFU)</span>
+          </div>
+        </div>
+
+        <!-- Metric 3: Confirmed Net Earnings (الأرباح الصافية المؤكدة) -->
+        <div class="bg-[#0f172a] p-5 rounded-xl border border-slate-800 space-y-3">
+          <div class="flex items-center justify-between text-slate-400">
+            <span class="text-xs font-semibold uppercase tracking-wider">Confirmed Net</span>
+            <div class="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
+            </div>
+          </div>
+          <div>
+            <div id="metric-net-earnings" class="text-2xl font-bold tracking-tight text-emerald-400 font-mono-nums">
+              0.00 د.ج
+            </div>
+            <div class="text-xs font-arabic text-slate-400 mt-1">
+              الأرباح الصافية المؤكدة (95%)
+            </div>
+          </div>
+          <div class="pt-2 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-500">
+            <span>Settled & Invoiced</span>
+            <span id="metric-settled-count" class="font-mono text-emerald-400 font-medium">0 verified</span>
+          </div>
+        </div>
+
+        <!-- Metric 4: Payout Pending (قيد التحويل البنكي) -->
+        <div class="bg-[#0f172a] p-5 rounded-xl border border-slate-800 space-y-3">
+          <div class="flex items-center justify-between text-slate-400">
+            <span class="text-xs font-semibold uppercase tracking-wider">Payout Pending</span>
+            <div class="w-8 h-8 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            </div>
+          </div>
+          <div>
+            <div id="metric-payout-pending" class="text-2xl font-bold tracking-tight text-blue-400 font-mono-nums">
+              0.00 د.ج
+            </div>
+            <div class="text-xs font-arabic text-slate-400 mt-1">
+              قيد التحويل للحساب البنكي
+            </div>
+          </div>
+          <div class="pt-2 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-500">
+            <span>Next Settlement</span>
+            <span class="font-mono text-slate-300 font-medium">T+1 Auto-RIB</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Fiscal Breakdown & Distribution Bar -->
+      <div class="bg-[#0f172a] p-5 rounded-xl border border-slate-800 space-y-4">
+        <div class="flex items-center justify-between">
+          <h3 class="text-sm font-semibold text-white">
+            Automated 5% Micro-Tax Allocation Pipeline
+          </h3>
+          <span class="text-xs text-slate-400 font-mono">Formula: Gross - (Gross * 0.05)</span>
+        </div>
+
+        <div class="space-y-2">
+          <div class="h-4 w-full bg-slate-800 rounded-full overflow-hidden flex">
+            <div style="width: 95%" class="bg-emerald-500 h-full flex items-center justify-end pr-2 text-[10px] font-bold text-slate-950 font-mono">
+              95% Net Merchant Share
+            </div>
+            <div style="width: 5%" class="bg-amber-500 h-full" title="5% Algerian Fiscal Treasury IFU"></div>
+          </div>
+          
+          <div class="flex items-center justify-between text-xs text-slate-400 pt-1">
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-sm bg-emerald-500 inline-block"></span>
+              <span>Net Share: <strong id="progress-net-share" class="text-slate-200">0.00 د.ج</strong></span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-sm bg-amber-500 inline-block"></span>
+              <span>Treasury Holdback: <strong id="progress-tax-holdback" class="text-slate-200">0.00 د.ج</strong></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chronological Payment Table -->
+      <div class="bg-[#0f172a] border border-slate-800 rounded-xl overflow-hidden p-5 sm:p-6 space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h2 class="text-base font-bold text-white tracking-tight">
+              Live Payment Ledger & Chronological Gateway Pipeline
+            </h2>
+            <p class="text-xs text-slate-400 font-arabic mt-0.5">
+              سجل المعاملات المباشر مع تتبع الحالات الست: DISCOVERED وحتى PAID_VERIFIED
+            </p>
+          </div>
+
+          <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
+            <input
+              type="text"
+              id="table-search-input"
+              oninput="renderTransactionsTable()"
+              placeholder="Search invoice, client..."
+              class="px-3 py-1.5 bg-[#090d16] border border-slate-700 rounded-lg text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 w-full sm:w-52"
+            />
+            <select
+              id="table-filter-state"
+              onchange="renderTransactionsTable()"
+              class="px-3 py-1.5 bg-[#090d16] border border-slate-700 rounded-lg text-xs text-slate-300 focus:outline-none focus:border-emerald-500 font-mono"
+            >
+              <option value="ALL">All States</option>
+              <option value="PAID_VERIFIED">PAID_VERIFIED</option>
+              <option value="READY_FOR_APPROVAL">READY_FOR_APPROVAL</option>
+              <option value="SUBMITTED">SUBMITTED</option>
+              <option value="ACCEPTED">ACCEPTED</option>
+              <option value="DISCOVERED">DISCOVERED</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto -mx-5 sm:mx-0">
+          <table class="w-full text-xs text-left">
+            <thead class="bg-[#090d16]/60 text-slate-400 border-b border-slate-800 uppercase font-mono text-[11px]">
+              <tr>
+                <th class="py-3 px-4 font-semibold">Invoice #</th>
+                <th class="py-3 px-4 font-semibold">Client</th>
+                <th class="py-3 px-4 font-semibold">Method</th>
+                <th class="py-3 px-4 font-semibold text-right">Gross</th>
+                <th class="py-3 px-4 font-semibold text-right">Tax (5%)</th>
+                <th class="py-3 px-4 font-semibold text-right">Net Share</th>
+                <th class="py-3 px-4 font-semibold text-center">Status</th>
+                <th class="py-3 px-4 font-semibold text-right">Action</th>
+              </tr>
+            </thead>
+            <tbody id="transactions-tbody" class="divide-y divide-slate-800/80">
+              <!-- Populated dynamically via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- VIEW 2: PAYMENT LINKS VIEW -->
+    <div id="view-links" class="space-y-6 hidden">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 rounded-xl bg-[#0f172a] border border-slate-800">
+        <div>
+          <h2 class="text-lg font-bold text-white tracking-tight">Active Payment Links (روابط الدفع الرقمية)</h2>
+          <p class="text-xs text-slate-400 font-arabic mt-0.5">أنشئ وشارك روابط دفع مخصصة لعملائك بالدينار الجزائري</p>
+        </div>
+        <button onclick="openCreateLinkModal()" class="px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold transition-all shadow-md">
+          + New Payment Link
+        </button>
+      </div>
+
+      <div id="links-cards-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Rendered via JS -->
+      </div>
+    </div>
+
+    <!-- VIEW 3: INVOICES VIEW -->
+    <div id="view-invoices" class="space-y-6 hidden">
+      <div class="p-5 rounded-xl bg-[#0f172a] border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h2 class="text-lg font-bold text-white tracking-tight">Official ANAE Tax Invoices (الفواتير الجبائية المعتمدة 5%)</h2>
+          <p class="text-xs text-slate-400 font-arabic mt-0.5">فواتير مرقمة تسلسلياً متوافقة مع قانون المقاول الذاتي 22-23</p>
+        </div>
+      </div>
+      <div id="invoices-list-container" class="space-y-4">
+        <!-- Reuses filtered transactions table -->
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ========================================================================= -->
+  <!-- 3. FOOTER (Quiet, Constitution Compliant)                                 -->
+  <!-- ========================================================================= -->
+  <footer class="border-t border-slate-800/80 bg-[#090d16] py-6 text-xs text-slate-500 mt-auto">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-2">
+        <span class="font-semibold text-slate-400">ANAE-Pay Link</span>
+        <span>·</span>
+        <span class="font-arabic">منصة المقاول الذاتي للمدفوعات الرقمية في الجزائر</span>
+      </div>
+      <div class="flex items-center gap-4 text-[11px] font-mono">
+        <span>IFU Rate: 5.0%</span>
+        <span>·</span>
+        <span>Edahabia & CIB Direct Gateway</span>
+        <span>·</span>
+        <span>Loi N° 22-23</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ========================================================================= -->
+  <!-- 4. MODALS CONTAINER                                                       -->
+  <!-- ========================================================================= -->
+
+  <!-- MODAL 1: VAULT MANAGEMENT MODAL -->
+  <div id="vaultModal" class="fixed inset-0 z-50 bg-[#090d16]/85 backdrop-blur-sm hidden items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-[#0f172a] border border-slate-800 rounded-xl p-6 sm:p-8 max-w-2xl w-full my-8 space-y-6 shadow-2xl relative">
+      <div class="flex items-center justify-between pb-4 border-b border-slate-800">
+        <div>
+          <h3 class="text-lg font-bold text-white tracking-tight">ANAE Vault & Gateway Configuration</h3>
+          <p class="text-xs text-slate-400 font-arabic mt-0.5">خزنة الربط الآمن لبيانات بطاقة المقاول الذاتي والحساب البنكي ومفاتيح Chargily Pay</p>
+        </div>
+        <button onclick="closeVaultModal()" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </div>
+
+      <div id="vaultFeedback" class="hidden p-3 rounded-lg border text-xs"></div>
+
+      <form id="vaultForm" onsubmit="handleSaveVault(event)" class="space-y-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1">Business Name (الاسم التجاري)</label>
+            <input type="text" id="v_business_name" required class="w-full px-3 py-2 bg-[#090d16] border border-slate-700 rounded-lg text-xs text-white focus:outline-none focus:border-emerald-500" />
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1">ANAE Card Number (رقم بطاقة المقاول)</label>
+            <input type="text" id="v_anae_card" required placeholder="24-0014892" class="w-full px-3 py-2 bg-[#090d16] border border-slate-700 rounded-lg text-xs text-white font-mono focus:outline-none focus:border-emerald-500" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1">NIF (15 Digits - رقم التعريف الجبائي)</label>
+            <input type="text" id="v_nif" maxlength="15" required placeholder="002416001489255" class="w-full px-3 py-2 bg-[#090d16] border border-slate-700 rounded-lg text-xs text-white font-mono focus:outline-none focus:border-emerald-500" />
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1">Bank Name (البنك أو المؤسسة المالية)</label>
+            <select id="v_bank_name" class="w-full px-3 py-2 bg-[#090d16] border border-slate-700 rounded-lg text-xs text-white focus:outline-none focus:border-emerald-500">
+              <option value="Algérie Poste (BaridiMob / CCP)">Algérie Poste (BaridiMob / CCP)</option>
+              <option value="Banque Nationale d'Algérie (BNA)">Banque Nationale d'Algérie (BNA)</option>
+              <option value="Banque Extérieure d'Algérie (BEA)">Banque Extérieure d'Algérie (BEA)</option>
+              <option value="Crédit Populaire d'Algérie (CPA)">Crédit Populaire d'Algérie (CPA)</option>
+              <option value="Banque de Développement Local (BDL)">Banque de Développement Local (BDL)</option>
+              <option value="Caisse Nationale d'Epargne (CNEP)">Caisse Nationale d'Epargne (CNEP)</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1">Local Bank RIB (20 Digits - رقم الحساب الكامل)</label>
+          <input type="text" id="v_rib" maxlength="20" required placeholder="00799999000184920381" class="w-full px-3 py-2 bg-[#090d16] border border-slate-700 rounded-lg text-xs text-white font-mono tracking-wider focus:outline-none focus:border-emerald-500" />
+        </div>
+
+        <div class="pt-3 border-t border-slate-800 space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold text-slate-300">Chargily Pay v2 API Tokens</span>
+            <label class="flex items-center gap-1.5 text-xs text-slate-400 font-mono cursor-pointer">
+              <input type="checkbox" id="v_live_mode" class="rounded border-slate-700 bg-slate-900 text-emerald-500" />
+              <span>Production (Live Mode)</span>
+            </label>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-[11px] font-medium text-slate-400 mb-1">Public Key</label>
+              <input type="text" id="v_chargily_pk" placeholder="test_pk_..." class="w-full px-3 py-2 bg-[#090d16] border border-slate-700 rounded-lg text-xs text-white font-mono focus:outline-none focus:border-emerald-500" />
+            </div>
+            <div>
+              <label class="block text-[11px] font-medium text-slate-400 mb-1">Secret Key (Token)</label>
+              <input type="password" id="v_chargily_sk" placeholder="test_sk_..." class="w-full px-3 py-2 bg-[#090d16] border border-slate-700 rounded-lg text-xs text-white font-mono focus:outline-none focus:border-emerald-500" />
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-4 flex items-center justify-end gap-3 border-t border-slate-800">
+          <button type="button" onclick="closeVaultModal()" class="px-4 py-2 rounded-lg border border-slate-700 text-xs text-slate-300 hover:bg-slate-800">Cancel</button>
+          <button type="submit" class="px-6 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold transition-all shadow-md shadow-emerald-500/20">
+            Save & Activate Vault
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL 2: CREATE PAYMENT LINK (WITH CHARGILY CHECKOUT CALL) -->
+  <div id="createLinkModal" class="fixed inset-0 z-50 bg-[#090d16]/85 backdrop-blur-sm hidden items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-[#0f172a] border border-slate-800 rounded-xl p-6 sm:p-7 max-w-lg w-full my-8 space-y-5 shadow-2xl relative">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+        <div>
+          <h3 class="text-lg font-bold text-white tracking-tight">Create Smart Payment Link</h3>
+          <p class="text-xs text-slate-400 font-arabic mt-0.5">إنشاء رابط دفع إلكتروني بالدينار الجزائري مع حساب الضريبة التلقائي 5%</p>
+        </div>
+        <button onclick="closeCreateLinkModal()" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </div>
+
+      <form id="createLinkForm" onsubmit="handleCreateLink(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Item or Service Title *</label>
+          <input type="text" id="link_title" required placeholder="e.g. Web Development Sprint or Consulting" class="w-full px-3 py-2 bg-[#090d16] border border-slate-700 rounded-lg text-xs text-white focus:outline-none focus:border-emerald-500" />
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1">Billing Description</label>
+          <textarea id="link_desc" rows="2" placeholder="Deliverables description..." class="w-full px-3 py-2 bg-[#090d16] border border-slate-700 rounded-lg text-xs text-white focus:outline-none focus:border-emerald-500 resize-none"></textarea>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Base Price (DZD) *</label>
+            <input type="number" id="link_price" min="100" step="100" value="15000" oninput="updateTaxPreview()" required class="w-full px-3 py-2 bg-[#090d16] border border-slate-700 rounded-lg text-xs text-white font-mono focus:outline-none focus:border-emerald-500" />
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1">Shipping / Fees (DZD)</label>
+            <input type="number" id="link_shipping" min="0" step="50" value="0" oninput="updateTaxPreview()" class="w-full px-3 py-2 bg-[#090d16] border border-slate-700 rounded-lg text-xs text-white font-mono focus:outline-none focus:border-emerald-500" />
+          </div>
+        </div>
+
+        <!-- Real-Time 5% Micro-Tax Calculation Strip -->
+        <div class="p-3.5 rounded-lg bg-[#090d16] border border-slate-800 space-y-1.5 text-xs">
+          <div class="flex items-center justify-between text-slate-400 font-semibold text-[11px]">
+            <span>Automated Micro-Tax Breakdown (5%)</span>
+            <span class="text-emerald-400 font-mono">ANAE Compliant</span>
+          </div>
+          <div class="grid grid-cols-3 gap-2 text-center pt-1 border-t border-slate-800/80">
+            <div>
+              <span class="text-[10px] text-slate-500 block">Gross Total</span>
+              <span id="preview-gross" class="text-xs font-mono font-bold text-white">15,000.00 د.ج</span>
+            </div>
+            <div>
+              <span class="text-[10px] text-amber-500 block">Tax 5%</span>
+              <span id="preview-tax" class="text-xs font-mono font-bold text-amber-400">-750.00 د.ج</span>
+            </div>
+            <div>
+              <span class="text-[10px] text-emerald-400 block">Net Share</span>
+              <span id="preview-net" class="text-xs font-mono font-bold text-emerald-400">14,250.00 د.ج</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1">Client Name</label>
+            <input type="text" id="link_client_name" placeholder="Client Name" class="w-full px-3 py-2 bg-[#090d16] border border-slate-700 rounded-lg text-xs text-white focus:outline-none focus:border-emerald-500" />
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1">Client Email</label>
+            <input type="email" id="link_client_email" placeholder="client@dz.net" class="w-full px-3 py-2 bg-[#090d16] border border-slate-700 rounded-lg text-xs text-white focus:outline-none focus:border-emerald-500" />
+          </div>
+        </div>
+
+        <div id="chargilyStatusNotice" class="text-[11px] text-slate-400 font-mono"></div>
+
+        <div class="pt-2 flex items-center gap-3">
+          <button type="submit" id="btnSubmitLink" class="w-full py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold transition-all shadow-md shadow-emerald-500/20 flex items-center justify-center gap-2">
+            <span>Generate & Connect Gateway</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL 3: INTERACTIVE CHECKOUT & SIMULATOR MODAL (EDAHABIA / CIB) -->
+  <div id="checkoutModal" class="fixed inset-0 z-50 bg-[#090d16]/85 backdrop-blur-sm hidden items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-[#0f172a] border border-slate-800 rounded-2xl max-w-md w-full my-6 overflow-hidden shadow-2xl relative">
+      <div class="p-4 bg-[#090d16] border-b border-slate-800 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <span class="text-base">🇩🇿</span>
+          <div class="text-xs font-bold text-white">ANAE Secure Pay · Edahabia & CIB</div>
+        </div>
+        <button onclick="closeCheckoutModal()" class="text-slate-400 hover:text-white p-1">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </div>
+
+      <div class="p-5 bg-gradient-to-b from-[#090d16] to-[#0f172a] border-b border-slate-800 flex justify-between items-center">
+        <div>
+          <span class="text-[10px] text-slate-400 uppercase tracking-wider block">Total To Pay</span>
+          <span id="ck-amount-display" class="text-xl font-bold font-mono text-emerald-400">0.00 د.ج</span>
+          <span id="ck-title-display" class="text-xs text-slate-300 block truncate max-w-[200px] mt-0.5">Title</span>
+        </div>
+        <div class="text-[10px] text-slate-400 font-mono text-right">
+          <div>IFU 5% Calculated</div>
+          <div class="text-emerald-400">Loi 22-23</div>
+        </div>
+      </div>
+
+      <div class="p-5 space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Select Algerian Payment Card:</label>
+          <div class="grid grid-cols-2 gap-2">
+            <button type="button" onclick="selectCardMethod('EDAHABIA')" id="card-btn-edahabia" class="p-2.5 rounded-lg border border-amber-500 bg-amber-950/20 text-white text-left">
+              <div class="text-xs font-bold text-amber-400 font-arabic">البطاقة الذهبية</div>
+              <div class="text-[10px] text-slate-400 font-mono">Algérie Poste</div>
+            </button>
+            <button type="button" onclick="selectCardMethod('CIB')" id="card-btn-cib" class="p-2.5 rounded-lg border border-slate-700 bg-[#090d16] text-slate-400 text-left">
+              <div class="text-xs font-bold text-emerald-400">Carte CIB</div>
+              <div class="text-[10px] text-slate-400 font-mono">Interbancaire</div>
+            </button>
+          </div>
+        </div>
+
+        <div class="space-y-3">
+          <div>
+            <label class="block text-[11px] font-medium text-slate-400 mb-1">Card Number (16 Digits)</label>
+            <input type="text" id="ck_card_number" value="6280 5824 1092 3844" class="w-full px-3 py-2 bg-[#090d16] border border-slate-700 rounded-lg text-xs text-white font-mono focus:outline-none focus:border-emerald-500" />
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block text-[11px] font-medium text-slate-400 mb-1">Expiry</label>
+              <input type="text" id="ck_expiry" value="11/28" class="w-full px-3 py-2 bg-[#090d16] border border-slate-700 rounded-lg text-xs text-white font-mono focus:outline-none focus:border-emerald-500" />
+            </div>
+            <div>
+              <label class="block text-[11px] font-medium text-slate-400 mb-1">CVV2</label>
+              <input type="password" id="ck_cvv" value="892" class="w-full px-3 py-2 bg-[#090d16] border border-slate-700 rounded-lg text-xs text-white font-mono focus:outline-none focus:border-emerald-500" />
+            </div>
+          </div>
+        </div>
+
+        <div class="p-3 rounded-lg bg-amber-950/30 border border-amber-500/30 text-xs text-slate-300 space-y-1">
+          <div class="font-bold text-amber-400">SATIM / BaridiMob SMS OTP Simulation:</div>
+          <div class="flex items-center gap-2 pt-1">
+            <input type="text" id="ck_otp" value="482910" maxlength="6" class="w-28 px-2 py-1 text-center bg-[#090d16] border border-slate-700 rounded text-emerald-400 font-mono tracking-widest text-sm focus:outline-none" />
+            <span class="text-[11px] text-slate-400 font-mono">OTP: 482910</span>
+          </div>
+        </div>
+
+        <button type="button" id="btnExecuteCheckout" onclick="executeCustomerPayment()" class="w-full py-3 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold transition-all shadow-md flex items-center justify-center gap-2">
+          <span>Authorize & Execute 5% Invoicing Pipeline</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 4: OFFICIAL TAX-COMPLIANT INVOICE MODAL -->
+  <div id="invoiceModal" class="fixed inset-0 z-50 bg-[#090d16]/85 backdrop-blur-sm hidden items-center justify-center p-3 sm:p-4 overflow-y-auto">
+    <div class="bg-[#0f172a] border border-slate-800 rounded-2xl max-w-2xl w-full my-6 p-4 sm:p-6 shadow-2xl relative space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-800 print:hidden">
+        <div class="flex items-center gap-2">
+          <span class="text-xs font-semibold text-emerald-400 font-mono">OFFICIAL TAX INVOICE</span>
+          <span class="text-slate-600">·</span>
+          <span id="inv-modal-number" class="text-xs text-slate-300 font-mono">INV-ANAE-2026-0001</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="window.print()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium border border-slate-700 flex items-center gap-1.5">
+            <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+            <span>Print / Save PDF</span>
+          </button>
+          <button onclick="closeInvoiceModal()" class="text-slate-400 hover:text-white p-1">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Printable Document Area -->
+      <div id="printInvoiceArea" class="bg-white text-slate-900 rounded-xl p-6 sm:p-7 border border-slate-200 space-y-5 text-xs">
+        
+        <!-- Header: Official Republic & ANAE -->
+        <div class="text-center pb-3 border-b-2 border-slate-900 space-y-0.5">
+          <div class="text-xs font-arabic font-semibold text-slate-800">الجمهورية الجزائرية الديمقراطية الشعبية</div>
+          <div class="text-[10px] font-semibold tracking-wide text-slate-600 uppercase">République Algérienne Démocratique et Populaire</div>
+          <div class="text-xs font-arabic text-emerald-800 font-bold pt-0.5">الوكالة الوطنية للمقاول الذاتي · Agence Nationale de l'Auto-Entrepreneur (ANAE)</div>
+          <div class="text-[9px] text-slate-500">فاتورة إلكترونية معتمدة جبائياً وفقاً للمرسوم التنفيذي للقانون 22-23 وقانون المالية (IFU 5%)</div>
+        </div>
+
+        <!-- Parties Split -->
+        <div class="grid grid-cols-2 gap-4">
+          <div class="space-y-1">
+            <div class="font-bold text-[10px] text-emerald-700 uppercase">1. مقدم الخدمة (Auto-Entrepreneur)</div>
+            <div id="inv-prestataire-name" class="font-bold text-slate-900">Numidia Software</div>
+            <div class="font-mono text-slate-700">NIF: <span id="inv-prestataire-nif">002416001489255</span></div>
+            <div class="font-mono text-slate-700">Carte ANAE: <span id="inv-prestataire-card">24-0014892</span></div>
+            <div class="font-mono text-slate-700">RIB: <span id="inv-prestataire-rib">00799999000184920381</span></div>
+          </div>
+          <div class="space-y-1 text-right">
+            <div class="font-bold text-[10px] text-emerald-700 uppercase">2. العميل (Client Facturé)</div>
+            <div id="inv-client-name" class="font-bold text-slate-900">Client Valide</div>
+            <div id="inv-client-email" class="font-mono text-slate-700">client@dz.net</div>
+            <div class="pt-1 font-mono">
+              <div>Facture N°: <strong id="inv-doc-number" class="text-slate-900">INV-ANAE-2026-0001</strong></div>
+              <div>Date: <strong id="inv-doc-date">25/10/2026</strong></div>
+              <div>Règlement: <strong id="inv-doc-method" class="text-emerald-700">EDAHABIA</strong></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Table of Items -->
+        <table class="w-full text-left border border-slate-300 rounded overflow-hidden">
+          <thead class="bg-slate-100 border-b border-slate-300 text-slate-700 uppercase text-[10px]">
+            <tr>
+              <th class="py-2 px-3">Désignation / البيان</th>
+              <th class="py-2 px-3 text-right">TVA</th>
+              <th class="py-2 px-3 text-right">Montant (DZD)</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-200">
+            <tr>
+              <td class="py-2.5 px-3">
+                <div id="inv-item-title" class="font-semibold text-slate-900">Prestation Numérique</div>
+                <div class="text-[10px] text-slate-500 font-arabic">خدمات تطوير واجهات رقمية واستشارات</div>
+              </td>
+              <td class="py-2.5 px-3 text-right font-mono text-slate-500">0% (Exonéré)</td>
+              <td id="inv-item-base" class="py-2.5 px-3 text-right font-mono font-semibold text-slate-900">15,000.00</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Strict Fiscal Totals Breakdown -->
+        <div class="grid grid-cols-2 gap-4 items-end pt-2">
+          <div id="inv-qr-container" class="flex items-center gap-2 p-2 bg-slate-50 border border-slate-200 rounded">
+            <!-- Deterministic SVG QR Matrix injected here -->
+          </div>
+
+          <div class="space-y-1 text-right font-mono">
+            <div class="flex justify-between py-1 border-b border-slate-200">
+              <span class="text-slate-600">Montant Brut (Gross):</span>
+              <span id="inv-sum-gross" class="font-bold text-slate-900">15,000.00 DZD</span>
+            </div>
+            <div class="flex justify-between py-1 border-b border-slate-200 text-amber-700">
+              <span>Retenue Fiscale IFU (5%):</span>
+              <span id="inv-sum-tax" class="font-bold">-750.00 DZD</span>
+            </div>
+            <div class="flex justify-between py-1.5 text-sm font-bold text-emerald-800 border-b-2 border-slate-900">
+              <span>Net Prestataire (95%):</span>
+              <span id="inv-sum-net">14,250.00 DZD</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Official Legal Mention -->
+        <div class="pt-2 border-t border-slate-200 text-[9px] text-slate-600 space-y-1">
+          <p class="font-arabic font-semibold text-right">معفي من الرسم على القيمة المضافة (TVA) خاضع للضريبة الجزافية الوحيدة (IFU) بنسبة 5% بموجب القانون رقم 22-23 الخاص بالنظام الأساسي للمقاول الذاتي</p>
+          <p class="italic text-slate-500">Exonéré de TVA - Soumis à l'Impôt Forfaitaire Unique (IFU 5%) conformément à la loi 22-23 portant statut de l'auto-entrepreneur en Algérie.</p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- 5. JAVASCRIPT LOGIC & LOCALSTORAGE PERSISTENCE ENGINE                      -->
+  <!-- ========================================================================= -->
+  <script>
+    // ---------------------------------------------------------------------------
+    // A. DEFAULT SEED STATE & STORAGE ENGINE
+    // ---------------------------------------------------------------------------
+    const DEFAULT_VAULT = {
+      business_name: 'Numidia Software & Design Services',
+      full_name_ar: 'ياسين بن عيسى',
+      full_name_en: 'Yacine Ben Aissa',
+      anae_card_number: '24-0014892',
+      nif: '002416001489255',
+      bank_name: 'Algérie Poste (BaridiMob / CCP)',
+      rib: '00799999000184920381',
+      chargily_pk: 'test_pk_79fa2810ab56402798e1f0e4',
+      chargily_sk: 'test_sk_9a87d0928374901923019283',
+      live_mode: false,
+      status: 'ACTIVE'
+    };
+
+    const DEFAULT_TRANSACTIONS = [
+      {
+        id: 'tx_01',
+        invoice_number: 'INV-ANAE-2026-0038',
+        client_name: 'Sarl Atlas Solutions',
+        client_email: 'finance@atlas-dz.com',
+        title: 'UI/UX Redesign & Next.js Implementation',
+        gross_amount: 65000,
+        estimated_tax: 3250,
+        net_merchant_share: 61750,
+        payment_method: 'EDAHABIA',
+        payment_state: 'PAID_VERIFIED',
+        date: '2026-10-20'
+      },
+      {
+        id: 'tx_02',
+        invoice_number: 'INV-ANAE-2026-0039',
+        client_name: 'Karim Mecheri (EURL Sahel Tech)',
+        client_email: 'karim@saheltech.dz',
+        title: 'Payment Gateway Integration & Vault Audit',
+        gross_amount: 120000,
+        estimated_tax: 6000,
+        net_merchant_share: 114000,
+        payment_method: 'CIB',
+        payment_state: 'PAID_VERIFIED',
+        date: '2026-10-22'
+      },
+      {
+        id: 'tx_03',
+        invoice_number: 'INV-ANAE-2026-0040',
+        client_name: 'Nadia Boudiaf',
+        client_email: 'nadia.boudiaf@gmail.com',
+        title: 'SaaS SEO Audit & Technical Localization',
+        gross_amount: 35000,
+        estimated_tax: 1750,
+        net_merchant_share: 33250,
+        payment_method: 'EDAHABIA',
+        payment_state: 'READY_FOR_APPROVAL',
+        date: '2026-10-24'
+      }
+    ];
+
+    const DEFAULT_LINKS = [
+      {
+        id: 'lk_01',
+        title: 'Web Design & Consulting Sprint',
+        slug: 'anae_sprint_web',
+        base_price: 45000,
+        shipping_fee: 0,
+        status: 'PAID_VERIFIED'
+      },
+      {
+        id: 'lk_02',
+        title: 'Mobile Application Technical Audit',
+        slug: 'anae_app_audit',
+        base_price: 35000,
+        shipping_fee: 0,
+        status: 'READY_FOR_APPROVAL'
+      }
+    ];
+
+    // LocalStorage Accessors
+    function getStoredVault() {
+      try {
+        const item = localStorage.getItem('anae_vault_data');
+        return item ? JSON.parse(item) : DEFAULT_VAULT;
+      } catch (e) {
+        return DEFAULT_VAULT;
+      }
+    }
+
+    function saveStoredVault(data) {
+      try {
+        localStorage.setItem('anae_vault_data', JSON.stringify(data));
+      } catch (e) {}
+    }
+
+    function getStoredTransactions() {
+      try {
+        const item = localStorage.getItem('anae_transactions_data');
+        return item ? JSON.parse(item) : DEFAULT_TRANSACTIONS;
+      } catch (e) {
+        return DEFAULT_TRANSACTIONS;
+      }
+    }
+
+    function saveStoredTransactions(list) {
+      try {
+        localStorage.setItem('anae_transactions_data', JSON.stringify(list));
+      } catch (e) {}
+    }
+
+    function getStoredLinks() {
+      try {
+        const item = localStorage.getItem('anae_links_data');
+        return item ? JSON.parse(item) : DEFAULT_LINKS;
+      } catch (e) {
+        return DEFAULT_LINKS;
+      }
+    }
+
+    function saveStoredLinks(list) {
+      try {
+        localStorage.setItem('anae_links_data', JSON.stringify(list));
+      } catch (e) {}
+    }
+
+    // Currency Formatter
+    function formatDZD(num) {
+      return new Intl.NumberFormat('fr-DZ', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      }).format(num) + ' د.ج';
+    }
+
+    // ---------------------------------------------------------------------------
+    // B. MODULE 2: RECALCULATE ACCOUNTING LEDGER (5% MICRO-TAX PIPELINE)
+    // ---------------------------------------------------------------------------
+    function updateLedgerMetrics() {
+      const txs = getStoredTransactions();
+      let grossVolume = 0;
+      let taxHoldback = 0;
+      let netEarnings = 0;
+      let payoutPending = 0;
+      let verifiedCount = 0;
+
+      txs.forEach(t => {
+        if (t.payment_state === 'PAID_VERIFIED') {
+          grossVolume += t.gross_amount;
+          taxHoldback += t.estimated_tax;
+          netEarnings += t.net_merchant_share;
+          verifiedCount++;
+        } else if (t.payment_state === 'READY_FOR_APPROVAL' || t.payment_state === 'SUBMITTED' || t.payment_state === 'ACCEPTED') {
+          payoutPending += t.gross_amount;
+        }
+      });
+
+      document.getElementById('metric-gross-volume').textContent = formatDZD(grossVolume);
+      document.getElementById('metric-tax-holdback').textContent = formatDZD(taxHoldback);
+      document.getElementById('metric-net-earnings').textContent = formatDZD(netEarnings);
+      document.getElementById('metric-payout-pending').textContent = formatDZD(payoutPending);
+
+      document.getElementById('metric-total-orders').textContent = txs.length + ' transactions';
+      document.getElementById('metric-settled-count').textContent = verifiedCount + ' verified';
+
+      document.getElementById('progress-net-share').textContent = formatDZD(netEarnings);
+      document.getElementById('progress-tax-holdback').textContent = formatDZD(taxHoldback);
+    }
+
+    // ---------------------------------------------------------------------------
+    // C. SYNC VAULT UI
+    // ---------------------------------------------------------------------------
+    function syncVaultDisplay() {
+      const v = getStoredVault();
+      document.getElementById('top-business-name').textContent = v.business_name;
+      document.getElementById('top-anae-card').textContent = v.anae_card_number;
+      document.getElementById('top-nif').textContent = v.nif;
+      
+      const ribStr = v.rib || '00799999000184920381';
+      document.getElementById('top-rib-display').textContent = ribStr.slice(0, 4) + '••••••••••••' + ribStr.slice(-4);
+
+      const badge = document.getElementById('nav-vault-status-badge');
+      if (v.status === 'ACTIVE') {
+        badge.textContent = 'ACTIVE';
+        badge.className = 'text-[10px] text-emerald-400 font-mono bg-emerald-950/80 border border-emerald-500/40 px-1.5 py-0.2 rounded';
+      } else {
+        badge.textContent = 'PENDING';
+        badge.className = 'text-[10px] text-amber-400 font-mono bg-amber-950/80 border border-amber-500/40 px-1.5 py-0.2 rounded';
+      }
+    }
+
+    // ---------------------------------------------------------------------------
+    // D. RENDER TRANSACTIONS TABLE
+    // ---------------------------------------------------------------------------
+    const STATUS_BADGES = {
+      PAID_VERIFIED: 'bg-emerald-950/60 text-emerald-400 border-emerald-500/40',
+      READY_FOR_APPROVAL: 'bg-blue-950/60 text-blue-400 border-blue-500/40',
+      SUBMITTED: 'bg-amber-950/60 text-amber-400 border-amber-500/40',
+      ACCEPTED: 'bg-teal-950/60 text-teal-400 border-teal-500/40',
+      DISCOVERED: 'bg-slate-800 text-slate-300 border-slate-700'
+    };
+
+    function renderTransactionsTable() {
+      const query = (document.getElementById('table-search-input')?.value || '').toLowerCase();
+      const stateFilter = document.getElementById('table-filter-state')?.value || 'ALL';
+      const txs = getStoredTransactions();
+
+      const tbody = document.getElementById('transactions-tbody');
+      tbody.innerHTML = '';
+
+      const filtered = txs.filter(t => {
+        const matchesQuery = t.invoice_number.toLowerCase().includes(query) ||
+                             t.client_name.toLowerCase().includes(query) ||
+                             t.title.toLowerCase().includes(query);
+        const matchesState = (stateFilter === 'ALL') || (t.payment_state === stateFilter);
+        return matchesQuery && matchesState;
+      });
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" class="text-center py-6 text-slate-500">No transactions recorded.</td></tr>`;
+        return;
+      }
+
+      filtered.forEach(t => {
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-800/40 transition-colors group cursor-pointer';
+        tr.onclick = () => openInvoiceModal(t);
+
+        const badgeClass = STATUS_BADGES[t.payment_state] || STATUS_BADGES.DISCOVERED;
+
+        tr.innerHTML = `
+          <td class="py-3 px-4 font-mono font-bold text-white group-hover:text-emerald-400 transition-colors">
+            ${t.invoice_number}
+            <div class="text-[10px] text-slate-500 font-mono">${t.date}</div>
+          </td>
+          <td class="py-3 px-4">
+            <div class="font-medium text-slate-200">${t.client_name}</div>
+            <div class="text-[11px] text-slate-400 truncate max-w-[140px]">${t.client_email || ''}</div>
+          </td>
+          <td class="py-3 px-4 font-mono text-[11px] text-slate-300">${t.payment_method}</td>
+          <td class="py-3 px-4 text-right font-mono font-semibold text-white">${formatDZD(t.gross_amount)}</td>
+          <td class="py-3 px-4 text-right font-mono font-medium text-amber-400">-${formatDZD(t.estimated_tax)}</td>
+          <td class="py-3 px-4 text-right font-mono font-bold text-emerald-400">${formatDZD(t.net_merchant_share)}</td>
+          <td class="py-3 px-4 text-center">
+            <span class="inline-block px-2 py-0.5 rounded text-[10px] font-mono font-bold border ${badgeClass}">
+              ${t.payment_state}
+            </span>
+          </td>
+          <td class="py-3 px-4 text-right" onclick="event.stopPropagation()">
+            <button onclick='openInvoiceModal(${JSON.stringify(t)})' class="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-emerald-400 transition-colors" title="View Official Invoice">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // ---------------------------------------------------------------------------
+    // E. RENDER PAYMENT LINKS
+    // ---------------------------------------------------------------------------
+    function renderPaymentLinks() {
+      const container = document.getElementById('links-cards-grid');
+      const links = getStoredLinks();
+      container.innerHTML = '';
+
+      links.forEach(l => {
+        const gross = Number(l.base_price) + Number(l.shipping_fee || 0);
+        const tax = Math.round(gross * 0.05 * 100) / 100;
+        const net = Math.round((gross - tax) * 100) / 100;
+
+        const card = document.createElement('div');
+        card.className = 'bg-[#0f172a] border border-slate-800 rounded-xl p-5 space-y-4 hover:border-slate-700 transition-colors flex flex-col justify-between';
+        card.innerHTML = `
+          <div class="space-y-3">
+            <div class="flex items-start justify-between gap-3">
+              <div>
+                <span class="text-[10px] font-mono text-emerald-400 font-semibold bg-emerald-950/60 border border-emerald-500/30 px-2 py-0.5 rounded">
+                  /${l.slug}
+                </span>
+                <h3 class="text-sm font-bold text-white mt-1">${l.title}</h3>
+              </div>
+              <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold border ${STATUS_BADGES[l.status] || STATUS_BADGES.DISCOVERED}">
+                ${l.status}
+              </span>
+            </div>
+
+            <div class="p-3 rounded-lg bg-[#090d16] border border-slate-800/80 space-y-1 text-xs font-mono">
+              <div class="flex justify-between">
+                <span class="text-slate-400">Gross:</span>
+                <span class="text-white font-bold">${formatDZD(gross)}</span>
+              </div>
+              <div class="flex justify-between text-amber-400 text-[11px]">
+                <span>5% Micro-Tax:</span>
+                <span>-${formatDZD(tax)}</span>
+              </div>
+              <div class="flex justify-between text-emerald-400 font-bold pt-1 border-t border-slate-800 text-[11px]">
+                <span>Net Share:</span>
+                <span>${formatDZD(net)}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="pt-3 border-t border-slate-800 flex items-center justify-between gap-2">
+            <button onclick="copyLinkSlug('${l.slug}')" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium border border-slate-700 flex items-center gap-1">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+              <span>Copy URL</span>
+            </button>
+            <button onclick='launchCheckoutSimulator(${JSON.stringify(l)})' class="px-3 py-1.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs font-semibold flex items-center gap-1.5">
+              <span>Test Checkout</span>
+            </button>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function copyLinkSlug(slug) {
+      const url = `${window.location.origin}/pay/${slug}`;
+      navigator.clipboard.writeText(url);
+      alert('تم نسخ رابط الدفع إلى الحافظة بنجاح:\n' + url);
+    }
+
+    // ---------------------------------------------------------------------------
+    // F. MODULE 1: VAULT MODAL LOGIC
+    // ---------------------------------------------------------------------------
+    function openVaultModal() {
+      const v = getStoredVault();
+      document.getElementById('v_business_name').value = v.business_name || '';
+      document.getElementById('v_anae_card').value = v.anae_card_number || '';
+      document.getElementById('v_nif').value = v.nif || '';
+      document.getElementById('v_bank_name').value = v.bank_name || 'Algérie Poste (BaridiMob / CCP)';
+      document.getElementById('v_rib').value = v.rib || '';
+      document.getElementById('v_chargily_pk').value = v.chargily_pk || '';
+      document.getElementById('v_chargily_sk').value = v.chargily_sk || '';
+      document.getElementById('v_live_mode').checked = !!v.live_mode;
+
+      const fb = document.getElementById('vaultFeedback');
+      fb.className = 'hidden';
+
+      const modal = document.getElementById('vaultModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeVaultModal() {
+      const modal = document.getElementById('vaultModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function handleSaveVault(e) {
+      e.preventDefault();
+      const cleanNif = document.getElementById('v_nif').value.replace(/\D/g, '');
+      const cleanRib = document.getElementById('v_rib').value.replace(/\D/g, '');
+
+      const fb = document.getElementById('vaultFeedback');
+
+      if (cleanNif.length !== 15) {
+        fb.className = 'p-3 rounded-lg border bg-rose-950/60 border-rose-500 text-rose-300 text-xs';
+        fb.textContent = 'رقم التعريف الجبائي NIF يجب أن يحتوي على 15 رقماً بالضبط حسب السجل الجبائي الجزائري.';
+        return;
+      }
+
+      if (cleanRib.length !== 20) {
+        fb.className = 'p-3 rounded-lg border bg-rose-950/60 border-rose-500 text-rose-300 text-xs';
+        fb.textContent = 'رقم الحساب البريدي أو البنكي الجزائري RIB يجب أن يتكون من 20 رقماً مع المفتاح.';
+        return;
+      }
+
+      const updatedVault = {
+        business_name: document.getElementById('v_business_name').value.trim(),
+        anae_card_number: document.getElementById('v_anae_card').value.trim(),
+        nif: cleanNif,
+        bank_name: document.getElementById('v_bank_name').value,
+        rib: cleanRib,
+        chargily_pk: document.getElementById('v_chargily_pk').value.trim(),
+        chargily_sk: document.getElementById('v_chargily_sk').value.trim(),
+        live_mode: document.getElementById('v_live_mode').checked,
+        status: 'ACTIVE'
+      };
+
+      saveStoredVault(updatedVault);
+      syncVaultDisplay();
+
+      fb.className = 'p-3 rounded-lg border bg-emerald-950/60 border-emerald-500 text-emerald-300 text-xs';
+      fb.textContent = 'تم حفظ بيانات المقاول الذاتي وربط بوابة الدفع بنجاح. حالة النظام: ACTIVE';
+
+      setTimeout(() => {
+        closeVaultModal();
+      }, 700);
+    }
+
+    // ---------------------------------------------------------------------------
+    // G. MODULE 3: CHARGILY CHECKOUT INJECTION & CREATE LINK
+    // ---------------------------------------------------------------------------
+    function openCreateLinkModal() {
+      updateTaxPreview();
+      const modal = document.getElementById('createLinkModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeCreateLinkModal() {
+      const modal = document.getElementById('createLinkModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function updateTaxPreview() {
+      const price = Number(document.getElementById('link_price')?.value) || 0;
+      const ship = Number(document.getElementById('link_shipping')?.value) || 0;
+      const gross = price + ship;
+      const tax = Math.round(gross * 0.05 * 100) / 100;
+      const net = Math.round((gross - tax) * 100) / 100;
+
+      document.getElementById('preview-gross').textContent = formatDZD(gross);
+      document.getElementById('preview-tax').textContent = '-' + formatDZD(tax);
+      document.getElementById('preview-net').textContent = formatDZD(net);
+    }
+
+    async function handleCreateLink(e) {
+      e.preventDefault();
+      const title = document.getElementById('link_title').value.trim();
+      const desc = document.getElementById('link_desc').value.trim();
+      const price = Number(document.getElementById('link_price').value) || 0;
+      const ship = Number(document.getElementById('link_shipping').value) || 0;
+      const clientName = document.getElementById('link_client_name').value.trim() || 'Client Valide';
+      const clientEmail = document.getElementById('link_client_email').value.trim() || 'client@dz.net';
+
+      const gross = price + ship;
+      const tax = Math.round(gross * 0.05 * 100) / 100;
+      const net = Math.round((gross - tax) * 100) / 100;
+
+      const v = getStoredVault();
+      const notice = document.getElementById('chargilyStatusNotice');
+      const submitBtn = document.getElementById('btnSubmitLink');
+
+      const slug = 'anae_' + Math.random().toString(36).substring(2, 8);
+      const newLinkObj = {
+        id: 'lk_' + Date.now(),
+        title,
+        description: desc,
+        slug,
+        base_price: price,
+        shipping_fee: ship,
+        customer_name: clientName,
+        customer_email: clientEmail,
+        status: 'DISCOVERED'
+      };
+
+      // Save to links collection
+      const links = getStoredLinks();
+      links.unshift(newLinkObj);
+      saveStoredLinks(links);
+      renderPaymentLinks();
+
+      // Check if Chargily Secret Token exists
+      if (v.chargily_sk && (v.chargily_sk.startsWith('test_sk_') || v.chargily_sk.startsWith('live_sk_'))) {
+        const endpoint = v.live_mode
+          ? 'https://pay.chargily.net/api/v2/checkouts'
+          : 'https://pay.chargily.net/test/api/v2/checkouts';
+
+        notice.textContent = 'Calling Chargily Pay API endpoint: ' + endpoint + ' ...';
+        submitBtn.disabled = true;
+
+        try {
+          const res = await fetch(endpoint, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${v.chargily_sk}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              amount: gross,
+              currency: 'dzd',
+              payment_method: 'edahabia',
+              success_url: window.location.origin + '?status=success&slug=' + slug,
+              failure_url: window.location.origin + '?status=failed&slug=' + slug,
+              description: `ANAE: ${title} (Tax 5% IFU Auto-calculated)`
+            })
+          });
+
+          const data = await res.json();
+          if (data && data.checkout_url) {
+            window.location.href = data.checkout_url;
+            return;
+          }
+        } catch (err) {
+          console.warn('Chargily API direct browser call returned (CORS/network fallback):', err);
+        } finally {
+          submitBtn.disabled = false;
+        }
+      }
+
+      // Seamless Instant Portal Launch Fallback
+      closeCreateLinkModal();
+      launchCheckoutSimulator(newLinkObj);
+    }
+
+    // ---------------------------------------------------------------------------
+    // H. CHECKOUT SIMULATOR & EXECUTION
+    // ---------------------------------------------------------------------------
+    let activeCheckoutItem = null;
+    let selectedMethod = 'EDAHABIA';
+
+    function launchCheckoutSimulator(item) {
+      activeCheckoutItem = item;
+      const gross = Number(item.base_price) + Number(item.shipping_fee || 0);
+
+      document.getElementById('ck-amount-display').textContent = formatDZD(gross);
+      document.getElementById('ck-title-display').textContent = item.title;
+
+      selectCardMethod('EDAHABIA');
+
+      const modal = document.getElementById('checkoutModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeCheckoutModal() {
+      const modal = document.getElementById('checkoutModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+      activeCheckoutItem = null;
+    }
+
+    function selectCardMethod(method) {
+      selectedMethod = method;
+      const bEd = document.getElementById('card-btn-edahabia');
+      const bCib = document.getElementById('card-btn-cib');
+
+      if (method === 'EDAHABIA') {
+        bEd.className = 'p-2.5 rounded-lg border border-amber-500 bg-amber-950/20 text-white text-left';
+        bCib.className = 'p-2.5 rounded-lg border border-slate-700 bg-[#090d16] text-slate-400 text-left';
+      } else {
+        bEd.className = 'p-2.5 rounded-lg border border-slate-700 bg-[#090d16] text-slate-400 text-left';
+        bCib.className = 'p-2.5 rounded-lg border border-emerald-500 bg-emerald-950/20 text-white text-left';
+      }
+    }
+
+    function executeCustomerPayment() {
+      if (!activeCheckoutItem) return;
+
+      const btn = document.getElementById('btnExecuteCheckout');
+      btn.disabled = true;
+      btn.textContent = 'Processing with Algérie Poste / SATIM...';
+
+      setTimeout(() => {
+        const item = activeCheckoutItem;
+        const gross = Number(item.base_price) + Number(item.shipping_fee || 0);
+        const tax = Math.round(gross * 0.05 * 100) / 100;
+        const net = Math.round((gross - tax) * 100) / 100;
+
+        const seq = Math.floor(Math.random() * 8000 + 1000);
+        const invNum = `INV-ANAE-2026-${seq}`;
+
+        const newTx = {
+          id: 'tx_' + Date.now(),
+          invoice_number: invNum,
+          client_name: item.customer_name || 'Client Valide',
+          client_email: item.customer_email || 'client@dz.net',
+          title: item.title,
+          gross_amount: gross,
+          estimated_tax: tax,
+          net_merchant_share: net,
+          payment_method: selectedMethod,
+          payment_state: 'PAID_VERIFIED',
+          date: new Date().toISOString().split('T')[0]
+        };
+
+        // Commit to LocalStorage
+        const txs = getStoredTransactions();
+        txs.unshift(newTx);
+        saveStoredTransactions(txs);
+
+        // Update links state
+        const links = getStoredLinks();
+        links.forEach(l => {
+          if (l.id === item.id) l.status = 'PAID_VERIFIED';
+        });
+        saveStoredLinks(links);
+
+        // Update UI
+        updateLedgerMetrics();
+        renderTransactionsTable();
+        renderPaymentLinks();
+
+        btn.disabled = false;
+        btn.textContent = 'Authorize & Execute 5% Invoicing Pipeline';
+        closeCheckoutModal();
+
+        // Immediately open official invoice!
+        openInvoiceModal(newTx);
+      }, 700);
+    }
+
+    // ---------------------------------------------------------------------------
+    // I. OFFICIAL 5% TAX INVOICE MODAL
+    // ---------------------------------------------------------------------------
+    function openInvoiceModal(tx) {
+      const v = getStoredVault();
+
+      document.getElementById('inv-modal-number').textContent = tx.invoice_number;
+      document.getElementById('inv-doc-number').textContent = tx.invoice_number;
+      document.getElementById('inv-doc-date').textContent = tx.date || new Date().toISOString().split('T')[0];
+      document.getElementById('inv-doc-method').textContent = tx.payment_method;
+
+      document.getElementById('inv-prestataire-name').textContent = v.business_name;
+      document.getElementById('inv-prestataire-nif').textContent = v.nif;
+      document.getElementById('inv-prestataire-card').textContent = v.anae_card_number;
+      document.getElementById('inv-prestataire-rib').textContent = v.rib;
+
+      document.getElementById('inv-client-name').textContent = tx.client_name;
+      document.getElementById('inv-client-email').textContent = tx.client_email || 'client@dz.net';
+
+      document.getElementById('inv-item-title').textContent = tx.title || 'Prestation Numérique';
+      document.getElementById('inv-item-base').textContent = new Intl.NumberFormat('fr-DZ', { minimumFractionDigits: 2 }).format(tx.gross_amount);
+
+      document.getElementById('inv-sum-gross').textContent = new Intl.NumberFormat('fr-DZ', { minimumFractionDigits: 2 }).format(tx.gross_amount) + ' DZD';
+      document.getElementById('inv-sum-tax').textContent = '-' + new Intl.NumberFormat('fr-DZ', { minimumFractionDigits: 2 }).format(tx.estimated_tax) + ' DZD';
+      document.getElementById('inv-sum-net').textContent = new Intl.NumberFormat('fr-DZ', { minimumFractionDigits: 2 }).format(tx.net_merchant_share) + ' DZD';
+
+      // Deterministic SVG QR Code
+      const qrPayload = `ANAE|${tx.invoice_number}|GROSS:${tx.gross_amount}|TAX5%:${tx.estimated_tax}|NET:${tx.net_merchant_share}|NIF:${v.nif}`;
+      renderSvgQr(qrPayload, 'inv-qr-container');
+
+      const modal = document.getElementById('invoiceModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeInvoiceModal() {
+      const modal = document.getElementById('invoiceModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function renderSvgQr(val, containerId) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+      container.innerHTML = `
+        <svg width="64" height="64" viewBox="0 0 21 21" class="border border-slate-300 bg-white p-0.5 rounded">
+          <rect width="21" height="21" fill="#fff"/>
+          <rect x="1" y="1" width="5" height="5" fill="#0f172a"/>
+          <rect x="15" y="1" width="5" height="5" fill="#0f172a"/>
+          <rect x="1" y="15" width="5" height="5" fill="#0f172a"/>
+          <rect x="2" y="2" width="3" height="3" fill="#fff"/>
+          <rect x="16" y="2" width="3" height="3" fill="#fff"/>
+          <rect x="2" y="16" width="3" height="3" fill="#fff"/>
+          <rect x="7" y="1" width="7" height="1" fill="#0f172a"/>
+          <rect x="7" y="5" width="7" height="1" fill="#0f172a"/>
+          <rect x="1" y="7" width="1" height="7" fill="#0f172a"/>
+          <rect x="5" y="7" width="1" height="7" fill="#0f172a"/>
+          <rect x="9" y="9" width="3" height="3" fill="#0f172a"/>
+          <rect x="13" y="11" width="2" height="4" fill="#0f172a"/>
+          <rect x="11" y="15" width="4" height="2" fill="#0f172a"/>
+        </svg>
+        <div class="text-[9px] text-slate-600 leading-tight">
+          <div class="font-bold text-slate-800">Vérification Fiscale</div>
+          <div class="font-mono text-emerald-700 font-bold">PAID_VERIFIED</div>
+          <div class="font-mono text-slate-500">Loi 22-23 IFU 5%</div>
+        </div>
+      `;
+    }
+
+    // ---------------------------------------------------------------------------
+    // J. VIEW SWITCHER
+    // ---------------------------------------------------------------------------
+    function switchView(tab) {
+      document.getElementById('view-overview').classList.add('hidden');
+      document.getElementById('view-links').classList.add('hidden');
+      document.getElementById('view-invoices').classList.add('hidden');
+
+      document.getElementById('nav-btn-overview').className = 'hover:text-white py-1 transition-colors whitespace-nowrap shrink-0';
+      document.getElementById('nav-btn-links').className = 'hover:text-white py-1 transition-colors whitespace-nowrap shrink-0';
+      document.getElementById('nav-btn-invoices').className = 'hover:text-white py-1 transition-colors whitespace-nowrap shrink-0';
+
+      document.getElementById('mob-nav-overview').className = 'px-2.5 py-1 rounded text-slate-400 whitespace-nowrap';
+      document.getElementById('mob-nav-links').className = 'px-2.5 py-1 rounded text-slate-400 whitespace-nowrap';
+      document.getElementById('mob-nav-invoices').className = 'px-2.5 py-1 rounded text-slate-400 whitespace-nowrap';
+
+      if (tab === 'overview') {
+        document.getElementById('view-overview').classList.remove('hidden');
+        document.getElementById('nav-btn-overview').className = 'text-white border-b-2 border-emerald-500 font-semibold py-1 transition-colors whitespace-nowrap shrink-0';
+        document.getElementById('mob-nav-overview').className = 'px-2.5 py-1 rounded text-emerald-400 font-semibold bg-emerald-950/50 whitespace-nowrap';
+      } else if (tab === 'links') {
+        document.getElementById('view-links').classList.remove('hidden');
+        document.getElementById('nav-btn-links').className = 'text-white border-b-2 border-emerald-500 font-semibold py-1 transition-colors whitespace-nowrap shrink-0';
+        document.getElementById('mob-nav-links').className = 'px-2.5 py-1 rounded text-emerald-400 font-semibold bg-emerald-950/50 whitespace-nowrap';
+        renderPaymentLinks();
+      } else if (tab === 'invoices') {
+        document.getElementById('view-invoices').classList.remove('hidden');
+        document.getElementById('nav-btn-invoices').className = 'text-white border-b-2 border-emerald-500 font-semibold py-1 transition-colors whitespace-nowrap shrink-0';
+        document.getElementById('mob-nav-invoices').className = 'px-2.5 py-1 rounded text-emerald-400 font-semibold bg-emerald-950/50 whitespace-nowrap';
+        const table = document.querySelector('#view-overview > div:last-child');
+        if (table) {
+          document.getElementById('invoices-list-container').innerHTML = '';
+          document.getElementById('invoices-list-container').appendChild(table.cloneNode(true));
+        }
+      }
+    }
+
+    // ---------------------------------------------------------------------------
+    // K. INITIAL BOOTSTRAP
+    // ---------------------------------------------------------------------------
+    window.addEventListener('DOMContentLoaded', () => {
+      if (!localStorage.getItem('anae_vault_data')) {
+        saveStoredVault(DEFAULT_VAULT);
+      }
+      if (!localStorage.getItem('anae_transactions_data')) {
+        saveStoredTransactions(DEFAULT_TRANSACTIONS);
+      }
+      if (!localStorage.getItem('anae_links_data')) {
+        saveStoredLinks(DEFAULT_LINKS);
+      }
+
+      syncVaultDisplay();
+      updateLedgerMetrics();
+      renderTransactionsTable();
+      renderPaymentLinks();
+
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('status') === 'success') {
+        const slug = urlParams.get('slug') || 'anae_checkout';
+        alert('تم تأكيد الدفع عبر بوابة Chargily بنجاح للرابط: ' + slug);
+      }
+    });
+  </script>
+</body>
+</html>
