@@ -178,7 +178,7 @@
         <div class="flex flex-wrap items-center gap-2 text-xs text-slate-400">
           <span>ANAE Card: <strong id="top-anae-card" class="text-white font-mono">24-0014892</strong></span>
           <span aria-hidden="true">·</span>
-          <span>NIF: <strong id="top-nif" class="text-white font-mono">002416001489255</strong></span>
+          <span>NIF (20 رقماً): <strong id="top-nif" class="text-white font-mono">19719020004318501980</strong></span>
           <span aria-hidden="true">·</span>
           <span>Statut: <strong class="text-emerald-400">IFU 5% Micro-Entreprise</strong></span>
         </div>
@@ -538,19 +538,19 @@
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
+              <!-- REPAIRED NIF FIELD: Explicit "NIF (20 رقماً)" Label, maxlength="20", and placeholder="19719020004318501980" -->
               <label class="block text-xs font-medium text-slate-400 mb-1">
-                NIF (الرقم الجبائي - Max 20 Characters) *
+                NIF (20 رقماً) - الرقم الجبائي *
               </label>
-              <!-- Compliant NIF input with exactly maxlength="20" -->
               <input
                 type="text"
                 id="v_nif"
                 maxlength="20"
                 required
-                placeholder="002416001489255"
+                placeholder="19719020004318501980"
                 class="w-full px-3 py-2 bg-[#090d16] border border-slate-700 rounded-lg text-xs text-white font-mono focus:outline-none focus:border-emerald-500"
               />
-              <span class="text-[10px] text-slate-500 mt-0.5 block">متوافق مع قاعدة بيانات المقاول الذاتي المحينة (حتى 20 رقماً)</span>
+              <span class="text-[10px] text-slate-500 mt-0.5 block">الرقم الجبائي المحدث لقاعدة بيانات المقاول الذاتي (حتى 20 رقماً)</span>
             </div>
             <div>
               <label class="block text-xs font-medium text-slate-400 mb-1">Bank Name (البنك أو المؤسسة المالية)</label>
@@ -798,7 +798,7 @@
           <div class="space-y-1">
             <div class="font-bold text-[10px] text-emerald-700 uppercase">1. مقدم الخدمة (Auto-Entrepreneur)</div>
             <div id="inv-prestataire-name" class="font-bold text-slate-900">Numidia Software</div>
-            <div class="font-mono text-slate-700">NIF: <span id="inv-prestataire-nif">002416001489255</span></div>
+            <div class="font-mono text-slate-700">NIF (20 رقماً): <span id="inv-prestataire-nif">19719020004318501980</span></div>
             <div class="font-mono text-slate-700">Carte ANAE: <span id="inv-prestataire-card">24-0014892</span></div>
             <div class="font-mono text-slate-700">RIB: <span id="inv-prestataire-rib">00799999000184920381</span></div>
           </div>
@@ -879,7 +879,7 @@
       full_name_ar: 'ياسين بن عيسى',
       full_name_en: 'Yacine Ben Aissa',
       anae_card_number: '24-0014892',
-      nif: '002416001489255',
+      nif: '19719020004318501980',
       bank_name: 'Algérie Poste (BaridiMob / CCP)',
       rib: '00799999000184920381',
       chargily_pk: 'test_pk_79fa2810ab56402798e1f0e4',
