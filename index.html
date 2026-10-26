@@ -4,16 +4,15 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>ANAE-Pay Link | منصة المقاول الذاتي للمدفوعات الرقمية</title>
-  <meta name="description" content="منصة المقاول الذاتي للمدفوعات الرقمية - 93% صافي التاجر، 5% ضريبة المقاول الذاتي IFU، 2% عمولة المنصة، مع الخزنة المشفرة وتوليد الفواتير والـ QR." />
   
-  <!-- خطوط عربية ولاتينية عالية الدقة -->
+  <!-- الخطوط العربية واللاتينية الرسمية -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
   
   <!-- Tailwind CSS عبر CDN الرسمي -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- محرّك توليد رموز الاستجابة السريعة QR -->
+  <!-- مكتبة توليد كود الاستجابة السريعة QR -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
   <style>
@@ -57,9 +56,7 @@
 </head>
 <body class="min-h-screen flex flex-col selection:bg-emerald-500 selection:text-slate-950">
 
-  <!-- ========================================================================= -->
-  <!-- 1. شريط التنقل العلوي المثبت (Sticky Navigation Header)                   -->
-  <!-- ========================================================================= -->
+  <!-- ==================== 1. شريط التنقل العلوي المثبت ==================== -->
   <header class="sticky top-0 z-40 w-full border-b border-slate-800 bg-[#090d16]/95 backdrop-blur-md">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
       
@@ -107,7 +104,7 @@
         <button onclick="openRibQrModal()" class="px-2.5 py-2 text-xs font-semibold text-cyan-300 bg-cyan-950/60 hover:bg-cyan-900 border border-cyan-500/40 rounded-lg transition-colors flex items-center gap-1.5 cursor-pointer" title="عرض رمز QR لحساب الـ RIB">
           <span>QR الحساب</span>
         </button>
-        <button onclick="openCreateLinkModal()" class="px-3.5 py-2 text-xs font-bold text-slate-950 bg-emerald-400 hover:bg-emerald-300 rounded-lg shadow-md transition-all active:scale-95 cursor-pointer">
+        <button onclick="openCreateLinkForm()" class="px-3.5 py-2 text-xs font-bold text-slate-950 bg-emerald-400 hover:bg-emerald-300 rounded-lg shadow-md transition-all active:scale-95 cursor-pointer">
           + إنشاء رابط دفع
         </button>
       </div>
@@ -123,11 +120,27 @@
     </div>
   </header>
 
-  <!-- ========================================================================= -->
-  <!-- 2. محتوى لوحة التحكم الرئيسي                                              -->
-  <!-- ========================================================================= -->
+  <!-- ==================== 2. محتوى لوحة التحكم الرئيسي ==================== -->
   <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 space-y-6">
     
+    <!-- زر العودة الموحد في كل الصفحات الفرعية والداخلية (Responsive Back to Dashboard Bar) -->
+    <div id="subview-back-bar" class="hidden items-center justify-between pb-3 border-b border-slate-800 print:hidden">
+      <button
+        type="button"
+        onclick="switchTab('overview')"
+        class="group inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-850 text-slate-200 hover:text-emerald-400 border border-slate-700/80 hover:border-emerald-500/40 text-xs font-medium shadow-sm transition-all duration-200 cursor-pointer active:scale-95"
+        title="العودة إلى لوحة التحكم الرئيسية (Back to Dashboard)"
+      >
+        <span class="text-emerald-400 group-hover:-translate-x-1 transition-transform">←</span>
+        <span class="font-bold text-slate-100 group-hover:text-emerald-300">العودة للوحة التحكم</span>
+        <span class="text-slate-500 text-[11px] font-mono hidden sm:inline">· Back to Dashboard</span>
+      </button>
+
+      <span id="subview-badge-title" class="text-xs font-mono px-2.5 py-1 rounded bg-slate-900 border border-slate-800 text-emerald-400 uppercase">
+        SECTION: SUB-VIEW
+      </span>
+    </div>
+
     <!-- بطاقة هوية التاجر والمقاول الذاتي -->
     <div class="p-4 sm:p-5 rounded-2xl bg-[#0f172a] border border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
       <div class="space-y-1">
@@ -157,10 +170,10 @@
       </div>
     </div>
 
-    <!-- ==================== التبويب الأول: المؤشرات والسجل ==================== -->
+    <!-- ==================== الصفحة 1: المؤشرات والسجل (Overview) ==================== -->
     <div id="view-overview" class="space-y-6">
       
-      <!-- تنبيه تجاوز حد الرصيد المعلق (Payout Pending Alert Banner) -->
+      <!-- تنبيه تجاوز حد الرصيد المعلق (Payout Pending Alert) -->
       <div id="payout-alert-banner" class="hidden p-4 rounded-xl border border-amber-500/70 bg-gradient-to-r from-amber-950/80 via-slate-900 to-rose-950/40 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all">
         <div class="flex items-start gap-3">
           <div class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-xl shrink-0">
@@ -188,24 +201,24 @@
         </div>
       </div>
 
-      <!-- بطاقات المؤشرات المالية الخمسة (The 5 Metric Tiles) -->
+      <!-- بطاقات المؤشرات المالية الخمسة (The 5 Metric Tiles) بألوان متباينة مميزة -->
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
         <!-- 1: Gross Total -->
-        <div class="bg-[#0f172a] p-4 sm:p-5 rounded-xl border border-slate-800 space-y-2">
+        <div class="bg-[#0f172a] p-4 sm:p-5 rounded-xl border border-slate-800 space-y-2 border-t-2 border-t-slate-500">
           <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Gross Total (100%)</span>
           <div id="val-metric-gross" class="text-xl sm:text-2xl font-bold font-mono-nums text-white">15,000.00 DZD</div>
           <div class="text-[11px] text-slate-400">إجمالي مدفوعات العملاء</div>
         </div>
 
         <!-- 2: Net Merchant Pay -->
-        <div class="bg-[#0f172a] p-4 sm:p-5 rounded-xl border border-slate-800 space-y-2">
+        <div class="bg-[#0f172a] p-4 sm:p-5 rounded-xl border border-slate-800 space-y-2 border-t-2 border-t-cyan-500">
           <span class="text-[11px] font-semibold text-cyan-400 uppercase tracking-wider">Net Merchant (93%)</span>
           <div id="val-metric-net" class="text-xl sm:text-2xl font-bold font-mono-nums text-cyan-400">13,950.00 DZD</div>
           <div class="text-[11px] text-slate-400">صافي المستحقات للـ RIB</div>
         </div>
 
         <!-- 3: Payout Pending -->
-        <div class="bg-[#0f172a] p-4 sm:p-5 rounded-xl border border-slate-800 space-y-2">
+        <div class="bg-[#0f172a] p-4 sm:p-5 rounded-xl border border-slate-800 space-y-2 border-t-2 border-t-amber-500">
           <div class="flex items-center justify-between">
             <span class="text-[11px] font-semibold text-amber-400 uppercase tracking-wider">Payout Pending</span>
             <span id="badge-payout-status" class="text-[9px] font-mono px-1.5 py-0.2 rounded bg-slate-800 text-slate-300">NORMAL</span>
@@ -215,16 +228,16 @@
         </div>
 
         <!-- 4: Platform Fee (2%) -->
-        <div class="bg-[#0f172a] p-4 sm:p-5 rounded-xl border border-slate-800 space-y-2">
+        <div class="bg-[#0f172a] p-4 sm:p-5 rounded-xl border border-slate-800 space-y-2 border-t-2 border-t-emerald-500">
           <span class="text-[11px] font-semibold text-emerald-400 uppercase tracking-wider">Platform Fee (2%)</span>
           <div id="val-metric-platform" class="text-xl sm:text-2xl font-bold font-mono-nums text-emerald-400">300.00 DZD</div>
           <div class="text-[11px] text-slate-400">عمولة المنصة الصافية</div>
         </div>
 
         <!-- 5: State Tax (5%) -->
-        <div class="bg-[#0f172a] p-4 sm:p-5 rounded-xl border border-slate-800 space-y-2">
-          <span class="text-[11px] font-semibold text-amber-400 uppercase tracking-wider">State Tax (5%)</span>
-          <div id="val-metric-tax" class="text-xl sm:text-2xl font-bold font-mono-nums text-amber-400">750.00 DZD</div>
+        <div class="bg-[#0f172a] p-4 sm:p-5 rounded-xl border border-slate-800 space-y-2 border-t-2 border-t-rose-500">
+          <span class="text-[11px] font-semibold text-rose-400 uppercase tracking-wider">State Tax (5%)</span>
+          <div id="val-metric-tax" class="text-xl sm:text-2xl font-bold font-mono-nums text-rose-400">750.00 DZD</div>
           <div class="text-[11px] text-slate-400">مستحقات الخزينة IFU</div>
         </div>
       </div>
@@ -235,7 +248,7 @@
           <div class="flex items-center gap-3">
             <div class="w-10 h-10 rounded-lg bg-slate-950 text-emerald-400 flex items-center justify-center text-lg font-bold">📄</div>
             <div class="text-right">
-              <span class="text-sm sm:text-base font-extrabold block">View Dynamic Invoice Panel</span>
+              <span class="text-sm sm:text-base font-extrabold block text-slate-950">View Dynamic Invoice Panel</span>
               <span class="text-[11px] text-slate-900 font-medium">معاينة الفاتورة الضريبية الرسمية (93% تاجر / 5% ضريبة / 2% منصة)</span>
             </div>
           </div>
@@ -246,7 +259,7 @@
           <div class="flex items-center gap-3">
             <div class="w-10 h-10 rounded-lg bg-cyan-950 text-cyan-400 flex items-center justify-center text-lg font-bold border border-cyan-500/30">📊</div>
             <div class="text-right">
-              <span class="text-sm sm:text-base font-extrabold block">تصدير سجل المعاملات المالية كملف CSV</span>
+              <span class="text-sm sm:text-base font-extrabold block text-white">تصدير سجل المعاملات المالية كملف CSV</span>
               <span class="text-[11px] text-slate-400 font-medium">تنزيل فوري لبيانات السجل والعمولة والضرائب (Excel / Sheets)</span>
             </div>
           </div>
@@ -272,7 +285,7 @@
         </div>
         <div class="h-4 w-full bg-slate-800 rounded-full overflow-hidden flex shadow-inner">
           <div style="width: 93%" class="bg-cyan-500 h-full flex items-center justify-center text-[10px] font-bold text-slate-950 font-mono">93% Merchant</div>
-          <div style="width: 5%" class="bg-amber-500 h-full flex items-center justify-center text-[9px] font-bold text-slate-950 font-mono">5%</div>
+          <div style="width: 5%" class="bg-rose-500 h-full flex items-center justify-center text-[9px] font-bold text-slate-950 font-mono">5%</div>
           <div style="width: 2%" class="bg-emerald-400 h-full"></div>
         </div>
       </div>
@@ -304,7 +317,7 @@
               </tr>
             </thead>
             <tbody id="transactions-table-body" class="divide-y divide-slate-800/60 font-mono">
-              <!-- يتم إدراجه عبر JavaScript -->
+              <!-- يُدرج ديناميكياً -->
             </tbody>
           </table>
         </div>
@@ -312,21 +325,107 @@
 
     </div>
 
-    <!-- ==================== التبويب الثاني: روابط الدفع ==================== -->
+    <!-- ==================== الصفحة 2: استمارة إنشاء رابط دفع (Creation Form) ==================== -->
+    <div id="view-create-form" class="space-y-6 hidden">
+      <div class="bg-[#0f172a] border border-slate-800 rounded-2xl max-w-2xl mx-auto p-6 sm:p-8 space-y-6 shadow-xl">
+        
+        <!-- زر العودة الصريح في رأس الاستمارة -->
+        <div class="flex items-center justify-between pb-4 border-b border-slate-800 print:hidden">
+          <button
+            type="button"
+            onclick="switchTab('overview')"
+            class="group inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-850 text-slate-200 hover:text-emerald-400 border border-slate-700/80 hover:border-emerald-500/40 text-xs font-medium shadow-sm transition-all duration-200 cursor-pointer active:scale-95"
+          >
+            <span class="text-emerald-400 font-bold group-hover:-translate-x-1 transition-transform">←</span>
+            <span class="font-bold text-slate-100 group-hover:text-emerald-300">العودة للوحة التحكم</span>
+            <span class="text-slate-500 text-[11px] font-mono hidden sm:inline">· Back to Dashboard</span>
+          </button>
+
+          <span class="text-xs font-mono text-emerald-400 uppercase">
+            NEW PAYMENT LINK
+          </span>
+        </div>
+
+        <div>
+          <h2 class="text-lg font-bold text-white tracking-tight">إنشاء رابط دفع ذكي جديد (Smart Payment Link)</h2>
+          <p class="text-xs text-slate-400 mt-1">توليد رابط دفع بالدينار الجزائري متوافق مع بطاقة الذهبية وبريدي موب مع اقتطاع الضريبة التلقائي</p>
+        </div>
+
+        <div class="space-y-4 text-xs">
+          <div>
+            <label class="block font-semibold text-slate-300 mb-1">وصف أو عنوان الخدمة / المنتج *</label>
+            <input type="text" id="form-link-title" class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-none focus:border-emerald-500 text-sm" placeholder="مثال: تطوير متجر إلكتروني متكامل أو تصميم هوية بصرية" value="تطوير وبرمجة منصة رقمية" />
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block font-semibold text-slate-300 mb-1">السعر الأساسي للخدمة (Base Price DZD) *</label>
+              <input type="number" id="form-link-price" oninput="calculateFormPipeline()" class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white font-mono text-sm focus:outline-none focus:border-emerald-500" value="15000" />
+            </div>
+            <div>
+              <label class="block font-semibold text-slate-300 mb-1">تكاليف التوصيل أو المعالجة (Shipping / Fees)</label>
+              <input type="number" id="form-link-shipping" oninput="calculateFormPipeline()" class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white font-mono text-sm focus:outline-none focus:border-emerald-500" value="0" />
+            </div>
+          </div>
+
+          <!-- بطاقة المعاينة الجبائية التلقائية (Live Calculation Widget) -->
+          <div class="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
+            <span class="text-[11px] font-bold text-emerald-400 block">المعاينة المالية الفورية للعملية (المرسوم التنفيذي 22-23):</span>
+            <div class="grid grid-cols-3 gap-2 font-mono text-center text-xs">
+              <div class="p-2 rounded bg-slate-900 border border-slate-800">
+                <span class="text-slate-500 block text-[10px]">الإجمالي للزبون</span>
+                <strong id="calc-preview-gross" class="text-white">15,000 DZD</strong>
+              </div>
+              <div class="p-2 rounded bg-slate-900 border border-slate-800">
+                <span class="text-rose-400 block text-[10px]">ضريبة الخزينة (5%)</span>
+                <strong id="calc-preview-tax" class="text-rose-400">-750 DZD</strong>
+              </div>
+              <div class="p-2 rounded bg-slate-900 border border-slate-800">
+                <span class="text-cyan-400 block text-[10px]">صافي أرباحك (93%)</span>
+                <strong id="calc-preview-net" class="text-cyan-400">13,950 DZD</strong>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block font-medium text-slate-400 mb-1">اسم العميل الموجه له (اختياري)</label>
+              <input type="text" id="form-link-client" class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white" placeholder="Ishak" />
+            </div>
+            <div>
+              <label class="block font-medium text-slate-400 mb-1">بريد العميل الإلكتروني (اختياري)</label>
+              <input type="email" id="form-link-email" class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white font-mono" placeholder="client@dz.net" />
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-2 flex items-center justify-end gap-3 border-t border-slate-800">
+          <button type="button" onclick="switchTab('overview')" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-750 text-slate-300 text-xs font-semibold cursor-pointer">
+            إلغاء والعودة
+          </button>
+          <button type="button" onclick="submitNewPaymentLink()" class="px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs shadow-md transition-all active:scale-95 cursor-pointer">
+            توليد وحفظ الرابط الذكي ✓
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ==================== الصفحة 3: روابط الدفع (Payment Links Grid) ==================== -->
     <div id="view-links" class="space-y-6 hidden">
       <div class="p-5 rounded-xl bg-[#0f172a] border border-slate-800 flex items-center justify-between">
         <div>
           <h2 class="text-base sm:text-lg font-bold text-white">روابط الدفع الذكية (Active Payment Links)</h2>
           <p class="text-xs text-slate-400">روابط ديناميكية جاهزة للمشاركة مع الزبائن مع محاكي الدفع وكود QR</p>
         </div>
-        <button onclick="openCreateLinkModal()" class="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs rounded-lg cursor-pointer">
+        <button onclick="openCreateLinkForm()" class="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs rounded-lg cursor-pointer">
           + إنشاء رابط جديد
         </button>
       </div>
       <div id="links-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
     </div>
 
-    <!-- ==================== التبويب الثالث: الفواتير الضريبية ==================== -->
+    <!-- ==================== الصفحة 4: الفواتير الضريبية (Tax Invoices) ==================== -->
     <div id="view-invoices" class="space-y-6 hidden">
       <div class="p-5 rounded-xl bg-[#0f172a] border border-slate-800 flex items-center justify-between">
         <div>
@@ -342,9 +441,7 @@
 
   </main>
 
-  <!-- ========================================================================= -->
-  <!-- 3. لوحة الفاتورة الضريبية الديناميكية (Modal مع الطباعة العتادية)          -->
-  <!-- ========================================================================= -->
+  <!-- ==================== 3. لوحة الفاتورة الضريبية التفاعلية ==================== -->
   <div id="invoiceModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-3 sm:p-4 overflow-y-auto print:p-0 print:bg-white print:fixed print:inset-0">
     <div id="official-print-area" class="bg-slate-900 border border-slate-800 rounded-2xl max-w-3xl w-full p-4 sm:p-8 shadow-2xl relative my-6 print:m-0 print:p-0 print:border-none print:shadow-none print:bg-white print:max-w-none text-slate-100">
       
@@ -454,7 +551,7 @@
               <span class="font-sans">عمولة المنصة (2% Platform Fee):</span>
               <span id="inv-platform-val" class="font-bold">-300.00 DZD</span>
             </div>
-            <div class="flex justify-between py-1 border-b border-slate-200 text-amber-800">
+            <div class="flex justify-between py-1 border-b border-slate-200 text-rose-800">
               <span class="font-sans">ضريبة المقاول الذاتي (5% IFU):</span>
               <span id="inv-tax-val" class="font-bold">-750.00 DZD</span>
             </div>
@@ -502,9 +599,7 @@
     </div>
   </div>
 
-  <!-- ========================================================================= -->
-  <!-- 4. مودال الخزنة وإعدادات الحساب والربط (Gateway Vault Modal)             -->
-  <!-- ========================================================================= -->
+  <!-- ==================== 4. مودال الخزنة (Gateway Vault Modal) ==================== -->
   <div id="vaultModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-3 sm:p-4 overflow-y-auto">
     <div class="bg-[#0f172a] border border-slate-800 rounded-2xl max-w-lg w-full p-6 space-y-5 shadow-2xl relative text-slate-100">
       
@@ -544,9 +639,7 @@
     </div>
   </div>
 
-  <!-- ========================================================================= -->
-  <!-- 5. مودال محاكي دفع العميل (Customer Interactive Checkout Simulator)        -->
-  <!-- ========================================================================= -->
+  <!-- ==================== 5. مودال محاكي الدفع (Chargily Checkout Simulator) ==================== -->
   <div id="checkoutModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-3 sm:p-4 overflow-y-auto">
     <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 space-y-5 shadow-2xl relative text-slate-100">
       <div class="flex items-center justify-between pb-3 border-b border-slate-800">
@@ -557,8 +650,8 @@
       </div>
 
       <div class="p-3 rounded-xl bg-slate-950 border border-slate-800 space-y-1 text-xs">
-        <div class="text-slate-400 font-sans">الخدمة: <strong id="sim-title" class="text-white">Web تطوير منصة</strong></div>
-        <div class="text-slate-400 font-sans">المبلغ المطلوب: <strong id="sim-amount" class="text-emerald-400 font-mono text-sm">15,000.00 DZD</strong></div>
+        <div class="text-slate-400">الخدمة: <strong id="sim-title" class="text-white">Web تطوير منصة</strong></div>
+        <div class="text-slate-400">المبلغ المطلوب: <strong id="sim-amount" class="text-emerald-400 font-mono text-sm">15,000.00 DZD</strong></div>
       </div>
 
       <div class="space-y-3 text-xs">
@@ -581,50 +674,18 @@
     </div>
   </div>
 
-  <!-- ========================================================================= -->
-  <!-- 6. مودال إنشاء رابط دفع جديد                                              -->
-  <!-- ========================================================================= -->
-  <div id="createLinkModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-3 sm:p-4 overflow-y-auto">
-    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl relative text-slate-100">
-      <div class="flex items-center justify-between pb-3 border-b border-slate-800">
-        <h3 class="text-sm font-bold text-white">+ إنشاء رابط دفع ذكي جديد</h3>
-        <button onclick="closeCreateLinkModal()" class="text-slate-400 hover:text-white">✕</button>
-      </div>
-
-      <div class="space-y-3 text-xs">
-        <div>
-          <label class="block text-slate-400 mb-1">عنوان أو وصف الخدمة</label>
-          <input type="text" id="new-link-title" class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-white" placeholder="مثلاً: تصميم هوية بصرية وتطوير موقع" />
-        </div>
-        <div>
-          <label class="block text-slate-400 mb-1">المبلغ المطلوب (DZD)</label>
-          <input type="number" id="new-link-price" class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-white font-mono" placeholder="25000" />
-        </div>
-      </div>
-
-      <button onclick="saveNewLink()" class="w-full py-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-xl text-xs transition-all active:scale-95 cursor-pointer">
-        حفظ وتوليد رابط الدفع والـ QR
-      </button>
-    </div>
-  </div>
-
-  <!-- ========================================================================= -->
-  <!-- 7. مودال رمز QR للحساب البنكي (RIB)                                       -->
-  <!-- ========================================================================= -->
+  <!-- ==================== 6. مودال رمز QR للحساب البنكي (RIB) ==================== -->
   <div id="ribQrModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4">
     <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-sm w-full p-6 text-center space-y-4 shadow-2xl">
       <h3 class="font-bold text-white text-sm">رمز الاستجابة السريعة لحساب الـ RIB</h3>
       <div id="rib-qr-container" class="p-4 bg-white rounded-xl inline-block mx-auto"></div>
       <div class="font-mono text-xs text-slate-300 break-all" id="rib-qr-text">00799999000000000381</div>
-      <button onclick="closeRibQrModal()" class="w-full py-2 bg-slate-800 hover:bg-slate-700 text-xs text-slate-300 rounded-lg">إغلاق</button>
+      <button onclick="closeRibQrModal()" class="w-full py-2 bg-slate-800 hover:bg-slate-750 text-xs text-slate-300 rounded-lg">إغلاق</button>
     </div>
   </div>
 
-  <!-- ========================================================================= -->
-  <!-- 8. محرك البرمجة التفاعلية (Vanilla JavaScript Engine)                     -->
-  <!-- ========================================================================= -->
+  <!-- ==================== 7. محرك الجافاسكريبت التشغيلي ==================== -->
   <script>
-    // الحالة الافتراضية
     let merchantData = {
       name: "Numidia Software & Design Services",
       nif: "19719020004318501980",
@@ -654,31 +715,81 @@
       { id: "lnk_1", title: "Web développement & Conception", price: 15000 }
     ];
 
-    // تبديل الألسنة (Tabs)
     function switchTab(tab) {
       document.getElementById('view-overview').classList.add('hidden');
       document.getElementById('view-links').classList.add('hidden');
       document.getElementById('view-invoices').classList.add('hidden');
+      document.getElementById('view-create-form').classList.add('hidden');
 
       document.getElementById('tab-btn-overview').className = 'hover:text-white py-1 transition-colors';
       document.getElementById('tab-btn-links').className = 'hover:text-white py-1 transition-colors';
       document.getElementById('tab-btn-invoices').className = 'hover:text-white py-1 transition-colors';
 
+      const backBar = document.getElementById('subview-back-bar');
+      const badgeTitle = document.getElementById('subview-badge-title');
+
       if (tab === 'overview') {
         document.getElementById('view-overview').classList.remove('hidden');
         document.getElementById('tab-btn-overview').className = 'text-white border-b-2 border-emerald-500 font-semibold py-1 transition-colors';
-      } else if (tab === 'links') {
-        document.getElementById('view-links').classList.remove('hidden');
-        document.getElementById('tab-btn-links').className = 'text-white border-b-2 border-emerald-500 font-semibold py-1 transition-colors';
-        renderLinks();
-      } else if (tab === 'invoices') {
-        document.getElementById('view-invoices').classList.remove('hidden');
-        document.getElementById('tab-btn-invoices').className = 'text-white border-b-2 border-emerald-500 font-semibold py-1 transition-colors';
-        renderInvoicesView();
+        backBar.classList.add('hidden');
+        backBar.classList.remove('flex');
+      } else {
+        backBar.classList.remove('hidden');
+        backBar.classList.add('flex');
+        badgeTitle.innerText = 'SECTION: ' + tab.toUpperCase();
+
+        if (tab === 'create') {
+          document.getElementById('view-create-form').classList.remove('hidden');
+          calculateFormPipeline();
+        } else if (tab === 'links') {
+          document.getElementById('view-links').classList.remove('hidden');
+          document.getElementById('tab-btn-links').className = 'text-white border-b-2 border-emerald-500 font-semibold py-1 transition-colors';
+          renderLinks();
+        } else if (tab === 'invoices') {
+          document.getElementById('view-invoices').classList.remove('hidden');
+          document.getElementById('tab-btn-invoices').className = 'text-white border-b-2 border-emerald-500 font-semibold py-1 transition-colors';
+          renderInvoicesView();
+        }
       }
     }
 
-    // تحديث الواجهة وحساب المؤشرات
+    function openCreateLinkForm() {
+      switchTab('create');
+    }
+
+    function calculateFormPipeline() {
+      const base = Number(document.getElementById('form-link-price').value) || 0;
+      const ship = Number(document.getElementById('form-link-shipping').value) || 0;
+      const gross = base + ship;
+      const tax = Math.round(gross * 0.05);
+      const net = Math.round(gross * 0.93);
+
+      document.getElementById('calc-preview-gross').innerText = gross.toLocaleString() + ' DZD';
+      document.getElementById('calc-preview-tax').innerText = '-' + tax.toLocaleString() + ' DZD';
+      document.getElementById('calc-preview-net').innerText = net.toLocaleString() + ' DZD';
+    }
+
+    function submitNewPaymentLink() {
+      const title = document.getElementById('form-link-title').value.trim();
+      const base = Number(document.getElementById('form-link-price').value) || 0;
+      const ship = Number(document.getElementById('form-link-shipping').value) || 0;
+      const total = base + ship;
+
+      if (!title || total <= 0) {
+        alert("يرجى كتابة وصف الخدمة وتحديد السعر بالدينار الجزائري.");
+        return;
+      }
+
+      paymentLinks.unshift({
+        id: 'lnk_' + Date.now(),
+        title: title,
+        price: total
+      });
+
+      alert("تم إنشاء رابط الدفع بنجاح!");
+      switchTab('links');
+    }
+
     function refreshMetrics() {
       let totalGross = transactions.reduce((acc, t) => acc + t.gross, 0);
       let totalNet = transactions.reduce((acc, t) => acc + t.net, 0);
@@ -691,7 +802,6 @@
       document.getElementById('val-metric-platform').innerText = totalPlatform.toLocaleString() + '.00 DZD';
       document.getElementById('val-metric-tax').innerText = totalTax.toLocaleString() + '.00 DZD';
 
-      // فحص حد الرصيد المعلق
       const alertBanner = document.getElementById('payout-alert-banner');
       const badge = document.getElementById('badge-payout-status');
       if (pendingBalance > merchantData.threshold) {
@@ -709,7 +819,6 @@
       renderTransactions();
     }
 
-    // رسم جدول المعاملات
     function renderTransactions(filterText = '') {
       const tbody = document.getElementById('transactions-table-body');
       tbody.innerHTML = '';
@@ -728,7 +837,7 @@
           </td>
           <td class="py-3 px-3 text-white font-bold">${t.gross.toLocaleString()}.00 DZD</td>
           <td class="py-3 px-3 text-emerald-400">-${t.platform.toLocaleString()}.00 DZD</td>
-          <td class="py-3 px-3 text-amber-400">-${t.tax.toLocaleString()}.00 DZD</td>
+          <td class="py-3 px-3 text-rose-400">-${t.tax.toLocaleString()}.00 DZD</td>
           <td class="py-3 px-3 text-cyan-400 font-bold">${t.net.toLocaleString()}.00 DZD</td>
           <td class="py-3 px-3 text-center">
             <span class="px-2 py-0.5 rounded text-[10px] bg-emerald-950 text-emerald-400 border border-emerald-500/40">${t.status}</span>
@@ -742,11 +851,9 @@
     }
 
     function filterTransactions() {
-      const val = document.getElementById('table-search').value;
-      renderTransactions(val);
+      renderTransactions(document.getElementById('table-search').value);
     }
 
-    // عرض روابط الدفع
     function renderLinks() {
       const grid = document.getElementById('links-grid');
       grid.innerHTML = '';
@@ -772,7 +879,6 @@
       document.getElementById('invoices-list-clone').innerHTML = document.querySelector('#view-overview > div:last-child').innerHTML;
     }
 
-    // نوافذ الفاتورة
     function openInvoiceModal() {
       document.getElementById('invoiceModal').classList.remove('hidden');
       document.getElementById('invoiceModal').classList.add('flex');
@@ -782,7 +888,6 @@
       document.getElementById('invoiceModal').classList.remove('flex');
     }
 
-    // الخزنة
     function openVaultModal() {
       document.getElementById('vaultModal').classList.remove('hidden');
       document.getElementById('vaultModal').classList.add('flex');
@@ -806,7 +911,6 @@
       alert("تم حفظ إعدادات الخزنة بنجاح.");
     }
 
-    // محاكي الدفع
     let currentSim = { title: '', price: 0 };
     function triggerCheckout(title, price) {
       currentSim = { title, price };
@@ -848,28 +952,6 @@
       alert("تمت محاكاة عملية الدفع بالنجاح وتوليد الفاتورة الضريبية!");
     }
 
-    // إنشاء رابط
-    function openCreateLinkModal() {
-      document.getElementById('createLinkModal').classList.remove('hidden');
-      document.getElementById('createLinkModal').classList.add('flex');
-    }
-    function closeCreateLinkModal() {
-      document.getElementById('createLinkModal').classList.add('hidden');
-      document.getElementById('createLinkModal').classList.remove('flex');
-    }
-    function saveNewLink() {
-      const title = document.getElementById('new-link-title').value;
-      const price = Number(document.getElementById('new-link-price').value);
-      if (!title || !price) {
-        alert("يرجى إدخال الوصف والمبلغ.");
-        return;
-      }
-      paymentLinks.unshift({ id: 'lnk_' + Date.now(), title, price });
-      closeCreateLinkModal();
-      switchTab('links');
-    }
-
-    // QR RIB
     function openRibQrModal() {
       document.getElementById('ribQrModal').classList.remove('hidden');
       document.getElementById('ribQrModal').classList.add('flex');
@@ -886,7 +968,6 @@
       document.getElementById('ribQrModal').classList.remove('flex');
     }
 
-    // تصدير CSV
     function exportLedgerCSV() {
       let csv = "\uFEFFرقم الفاتورة,العميل,البريد,تاريخ المعاملة,الإجمالي (100%),عمولة المنصة (2%),الضريبة (5% IFU),صافي التاجر (93%),طريقة الدفع,الحالة\n";
       transactions.forEach(t => {
@@ -902,7 +983,6 @@
       document.body.removeChild(link);
     }
 
-    // محاكاة الرصيد المعلق
     function simulateAddPending(amount) {
       pendingBalance += amount;
       refreshMetrics();
@@ -916,7 +996,6 @@
       document.getElementById('payout-alert-banner').classList.add('hidden');
     }
 
-    // الإقلاع الأولي
     window.addEventListener('DOMContentLoaded', () => {
       refreshMetrics();
     });
