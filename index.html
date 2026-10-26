@@ -1,1990 +1,452 @@
 <!DOCTYPE html>
-<html lang="ar" dir="ltr" class="dark">
+<html lang="ar" dir="rtl" class="dark">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ANAE-Pay Link | منصة المقاول الذاتي للمدفوعات الرقمية</title>
-  <meta name="description" content="منصة المقاول الذاتي للمدفوعات الرقمية - Single-file FinTech payment gateway, automated 2% platform commission, 5% ANAE tax, persistent PDF invoice downloads, and live Algerian banking ledger." />
   
-  <!-- Google Fonts: Plus Jakarta Sans, IBM Plex Sans Arabic, JetBrains Mono -->
+  <!-- الخطوط الرسمية -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
   
-  <!-- Tailwind CSS via CDN -->
+  <!-- Tailwind CSS عبر CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          colors: {
-            brand: {
-              obsidian: '#090d16',
-              surface: '#0f172a',
-              card: '#131d31',
-              cardHover: '#18243c',
-              border: '#1e293b',
-              emerald: '#10b981',
-              emeraldHover: '#059669',
-              amber: '#f59e0b',
-              cyan: '#06b6d4',
-            }
-          },
-          fontFamily: {
-            sans: ['"Plus Jakarta Sans"', '"IBM Plex Sans Arabic"', 'sans-serif'],
-            arabic: ['"IBM Plex Sans Arabic"', '"Plus Jakarta Sans"', 'sans-serif'],
-            mono: ['"JetBrains Mono"', 'monospace'],
-          }
-        }
-      }
-    }
-  </script>
-
-  <!-- html2pdf.js Official Bundle for Client-Side Native PDF Downloads -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  
+  <!-- مكتبة توليد كود QR خفيفة -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
   <style>
     body {
+      font-family: 'IBM Plex Sans Arabic', sans-serif;
       background-color: #090d16;
       color: #f1f5f9;
-      font-family: 'Plus Jakarta Sans', 'IBM Plex Sans Arabic', sans-serif;
-      overflow-x: hidden;
     }
     .font-mono-nums {
       font-family: 'JetBrains Mono', monospace;
       font-variant-numeric: tabular-nums;
     }
-    /* Official Tax Invoice Print Styles */
+    /* إعدادات الطباعة العتادية المباشرة للمتصفح وحفظ PDF */
     @media print {
-      body * {
-        visibility: hidden;
+      body {
+        background-color: #ffffff !important;
+        color: #000000 !important;
       }
-      #printInvoiceArea, #printInvoiceArea * {
-        visibility: visible;
+      .print\:hidden {
+        display: none !important;
       }
-      #printInvoiceArea {
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 100%;
-        margin: 0;
-        padding: 24px;
+      #invoice-modal-content {
+        position: fixed !important;
+        left: 0 !important;
+        top: 0 !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        border: none !important;
+        box-shadow: none !important;
         background: #ffffff !important;
-        color: #0f172a !important;
+        color: #000000 !important;
       }
-    }
-    /* Sleek custom scrollbars */
-    ::-webkit-scrollbar {
-      width: 5px;
-      height: 5px;
-    }
-    ::-webkit-scrollbar-track {
-      background: #090d16;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: #1e293b;
-      border-radius: 3px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-      background: #334155;
-    }
-    @keyframes shake {
-      0%, 100% { transform: translateX(0); }
-      20%, 60% { transform: translateX(-6px); }
-      40%, 80% { transform: translateX(6px); }
-    }
-    .animate-shake {
-      animation: shake 0.4s ease-in-out;
     }
   </style>
 </head>
-<body class="min-h-screen bg-[#090d16] text-slate-100 flex flex-col selection:bg-emerald-500 selection:text-slate-950 antialiased overflow-x-hidden">
+<body class="min-h-screen flex flex-col selection:bg-emerald-500 selection:text-slate-950">
 
-  <!-- ========================================================================= -->
-  <!-- 1. TOP BAR (3-Zone Contract, Mobile Touch-Optimized)                      -->
-  <!-- ========================================================================= -->
-  <header class="sticky top-0 z-40 bg-[#090d16]/90 backdrop-blur-md border-b border-slate-800">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+  <!-- ==================== 1. الترويسة وشريط التنقل ==================== -->
+  <header class="sticky top-0 z-40 bg-slate-950/95 backdrop-blur-md border-b border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
       
-      <!-- Zone 1: Single text element wordmark -->
-      <div class="flex items-center gap-2.5 whitespace-nowrap shrink-0">
-        <a href="#" class="flex items-center gap-2 group">
-          <div class="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 font-bold text-sm transition-colors group-hover:border-emerald-500">
-            🇩🇿
-          </div>
-          <div class="flex flex-col">
-            <span class="text-sm sm:text-base font-bold tracking-tight text-white group-hover:text-emerald-400 transition-colors">
-              ANAE-Pay Link
-            </span>
-            <span class="text-[9px] text-slate-400 font-arabic hidden sm:inline -mt-1">
-              منصة المقاول الذاتي للمدفوعات الرقمية
-            </span>
-          </div>
-        </a>
+      <!-- شعار المنصة -->
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-700 flex items-center justify-center font-bold text-slate-950 text-base shadow-lg shadow-emerald-500/20">
+          🇩🇿
+        </div>
+        <div>
+          <span class="font-bold text-white text-base tracking-tight">ANAE-Pay<span class="text-emerald-400">.Link</span></span>
+          <span class="text-[10px] text-slate-400 block -mt-1">منصة المقاول الذاتي للمدفوعات الرقمية (Loi 22-23)</span>
+        </div>
       </div>
 
-      <!-- Zone 2: Navigation Links -->
+      <!-- روابط التنقل -->
       <nav class="hidden md:flex items-center gap-6 text-xs sm:text-sm font-medium text-slate-400">
-        <button onclick="switchView('overview')" id="nav-btn-overview" class="text-white border-b-2 border-emerald-500 font-semibold py-1 transition-colors whitespace-nowrap shrink-0">
-          Overview & Revenue
-        </button>
-        <button onclick="switchView('links')" id="nav-btn-links" class="hover:text-white py-1 transition-colors whitespace-nowrap shrink-0">
-          Payment Links
-        </button>
-        <button onclick="switchView('invoices')" id="nav-btn-invoices" class="hover:text-white py-1 transition-colors whitespace-nowrap shrink-0">
-          Tax Invoices
-        </button>
-        <button onclick="openVaultModal()" class="hover:text-white py-1 transition-colors whitespace-nowrap shrink-0 flex items-center gap-1.5">
-          <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
-          <span>Gateway Vault</span>
-          <span id="nav-vault-status-badge" class="text-[9px] text-emerald-400 font-mono bg-emerald-950/80 border border-emerald-500/40 px-1.5 py-0.2 rounded">
-            ACTIVE
-          </span>
+        <button onclick="switchTab('overview')" id="nav-overview" class="text-white border-b-2 border-emerald-500 font-semibold py-1">المؤشرات العامة</button>
+        <button onclick="switchTab('links')" id="nav-links" class="hover:text-white py-1">روابط الدفع</button>
+        <button onclick="switchTab('invoices')" id="nav-invoices" class="hover:text-white py-1">الفواتير الضريبية</button>
+        <button onclick="openVaultModal()" class="hover:text-white py-1 flex items-center gap-1.5 text-emerald-400">
+          <span>🔒 الخزنة (Vault)</span>
+          <span class="text-[9px] font-mono bg-emerald-950 px-1.5 py-0.2 rounded border border-emerald-500/40">ACTIVE</span>
         </button>
       </nav>
 
-      <!-- Zone 3: 1 Primary Action -->
-      <div class="flex items-center gap-2 shrink-0">
-        <button onclick="openCreateLinkModal()" class="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-3.5 py-2 text-xs font-semibold text-slate-950 bg-emerald-400 hover:bg-emerald-300 rounded-lg transition-colors whitespace-nowrap shadow-sm shadow-emerald-500/20 active:translate-y-0.5">
-          <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
-          <span>Create Link</span>
+      <!-- زر الإجراء الرئيسي -->
+      <div class="flex items-center gap-2">
+        <button onclick="openCreateLinkModal()" class="px-3.5 py-2 bg-emerald-400 hover:bg-emerald-300 text-slate-950 text-xs font-bold rounded-lg shadow-md transition-all active:scale-95 cursor-pointer">
+          + إنشاء رابط دفع
         </button>
       </div>
 
     </div>
-
-    <!-- Mobile Sub-Navigation Touch Strip -->
-    <div class="md:hidden flex items-center justify-around border-t border-slate-800/80 bg-[#0f172a]/90 px-2 py-2 text-xs overflow-x-auto">
-      <button onclick="switchView('overview')" id="mob-nav-overview" class="px-2.5 py-1 rounded text-emerald-400 font-semibold bg-emerald-950/50 whitespace-nowrap">
-        Overview
-      </button>
-      <button onclick="switchView('links')" id="mob-nav-links" class="px-2.5 py-1 rounded text-slate-400 whitespace-nowrap">
-        Links
-      </button>
-      <button onclick="switchView('invoices')" id="mob-nav-invoices" class="px-2.5 py-1 rounded text-slate-400 whitespace-nowrap">
-        Invoices
-      </button>
-      <button onclick="openVaultModal()" class="px-2.5 py-1 rounded text-slate-400 whitespace-nowrap flex items-center gap-1">
-        <svg class="w-3 h-3 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
-        <span>Vault</span>
-      </button>
-    </div>
   </header>
 
-  <!-- ========================================================================= -->
-  <!-- 2. MAIN VIEWPORT WRAPPER                                                  -->
-  <!-- ========================================================================= -->
-  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-7 space-y-5 sm:space-y-7">
+  <!-- ==================== 2. جسم لوحة التحكم ==================== -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 space-y-6">
     
-    <!-- TOP BANNER: Official ANAE Merchant Profile Bar -->
-    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 p-4 sm:p-5 rounded-xl bg-[#0f172a] border border-slate-800 shadow-sm">
+    <!-- شريط بطاقة التاجر والمقاول الذاتي -->
+    <div class="p-4 sm:p-5 rounded-2xl bg-slate-900 border border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
       <div class="space-y-1">
-        <div class="flex flex-wrap items-center gap-2 text-[11px] sm:text-xs text-slate-400">
-          <span>Carte ANAE: <strong id="top-anae-card" class="text-white font-mono">24-0014892</strong></span>
-          <span aria-hidden="true">·</span>
-          <span>NIF (20 رقماً): <strong id="top-nif" class="text-white font-mono">19719020004318501980</strong></span>
-          <span aria-hidden="true">·</span>
-          <span>Statut: <strong class="text-emerald-400">Micro-Entreprise (IFU 5%)</strong></span>
+        <div class="flex flex-wrap items-center gap-2 text-xs text-slate-400">
+          <span>Carte ANAE: <strong id="merchant-card-display" class="text-white font-mono">24-0014892</strong></span>
+          <span>·</span>
+          <span>NIF: <strong id="merchant-nif-display" class="text-white font-mono">19719020004318501980</strong></span>
+          <span>·</span>
+          <span class="text-emerald-400">النظام الجبائي الجزافي (IFU 5%)</span>
         </div>
-        <h1 id="top-business-name" class="text-lg sm:text-2xl font-bold tracking-tight text-white">
+        <h1 id="merchant-name-display" class="text-xl sm:text-2xl font-bold text-white">
           Numidia Software & Design Services
         </h1>
-        <p class="text-xs text-slate-400 font-arabic">
-          بوابة المقاول الذاتي: اقتطاع عمولة المنصة 2% + الضريبة القانونية 5% + صافي مستحقات التاجر 93% عبر شارجلي
+        <p class="text-xs text-slate-400">
+          التقسيم المالي التلقائي: 93% صافي المقاول · 5% ضريبة الدولة · 2% عمولة المنصة
         </p>
       </div>
 
       <div class="flex items-center gap-3">
-        <div class="text-right hidden sm:block">
+        <div class="text-left font-mono text-xs" dir="ltr">
           <span class="text-[10px] text-slate-500 block">Bank Account / RIB</span>
-          <span id="top-rib-display" class="text-xs font-mono text-slate-300 font-medium">
-            0079••••••••••••0381
-          </span>
+          <span id="merchant-rib-display" class="text-slate-300 font-bold">00799999000000000381</span>
         </div>
-        <button onclick="openVaultModal()" class="w-full sm:w-auto px-3.5 py-2 text-xs font-medium rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-colors whitespace-nowrap flex items-center justify-center gap-1.5">
-          <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
-          <span>تعديل إعدادات الحساب والخزنة</span>
+        <button onclick="openVaultModal()" class="px-3 py-2 bg-slate-800 hover:bg-slate-750 text-slate-200 text-xs rounded-lg border border-slate-700 transition-colors cursor-pointer">
+          إعدادات الحساب
         </button>
       </div>
     </div>
 
-    <!-- VIEW 1: OVERVIEW (FIXED REVENUE MATRIX & TRANSACTIONS) -->
-    <div id="view-overview" class="space-y-6">
-      
-      <!-- 4 PROGRAMMATIC METRIC TILES (2% Platform + 5% ANAE Tax + 93% Merchant) -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-        
-        <!-- Metric 1: Gross Total -->
-        <div class="bg-[#0f172a] p-4 sm:p-5 rounded-xl border border-slate-800 space-y-2 sm:space-y-3">
-          <div class="flex items-center justify-between text-slate-400">
-            <span class="text-[11px] font-semibold uppercase tracking-wider">Gross Total</span>
-            <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-slate-800 flex items-center justify-center text-slate-300">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
-            </div>
-          </div>
-          <div>
-            <div id="metric-gross-volume" class="text-xl sm:text-2xl font-bold tracking-tight text-white font-mono-nums truncate">
-              0.00 د.ج
-            </div>
-            <div class="text-[11px] sm:text-xs font-arabic text-slate-400 mt-1">
-              إجمالي مدفوعات الزبائن (100%)
-            </div>
-          </div>
-          <div class="pt-2 border-t border-slate-800/80 flex items-center justify-between text-[10px] text-slate-500">
-            <span>Completed Orders</span>
-            <span id="metric-total-orders" class="font-mono text-slate-300 font-medium">0 transactions</span>
-          </div>
+    <!-- تنبيه الرصيد المعلق (Payout Pending Alert) -->
+    <div id="payout-alert-banner" class="hidden p-4 rounded-xl border border-amber-500/60 bg-gradient-to-r from-amber-950/80 via-slate-900 to-amber-950/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center text-lg shrink-0">
+          ⚠️
         </div>
-
-        <!-- Metric 2: Net Earnings (Platform Owner 2% Fee) -->
-        <div class="bg-[#0f172a] p-4 sm:p-5 rounded-xl border border-emerald-500/40 bg-emerald-950/20 space-y-2 sm:space-y-3 relative overflow-hidden">
-          <div class="flex items-center justify-between text-emerald-400">
-            <span class="text-[11px] font-semibold uppercase tracking-wider">Net Earnings (Platform 2%)</span>
-            <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 text-sm font-bold">
-              ⚡
-            </div>
-          </div>
-          <div>
-            <div id="metric-net-earnings" class="text-xl sm:text-2xl font-bold tracking-tight text-emerald-400 font-mono-nums truncate">
-              0.00 د.ج
-            </div>
-            <div class="text-[11px] sm:text-xs font-arabic text-emerald-300 font-semibold mt-1">
-              عمولة المنصة الصافية (2% من الإجمالي)
-            </div>
-          </div>
-          <div class="pt-2 border-t border-emerald-500/20 flex items-center justify-between text-[10px] text-slate-400">
-            <span>Owner Yield</span>
-            <span class="font-mono text-emerald-400 font-bold">2.00% Net Fee</span>
-          </div>
-        </div>
-
-        <!-- Metric 3: State Micro-Tax (5%) -->
-        <div class="bg-[#0f172a] p-4 sm:p-5 rounded-xl border border-slate-800 space-y-2 sm:space-y-3">
-          <div class="flex items-center justify-between text-slate-400">
-            <span class="text-[11px] font-semibold uppercase tracking-wider">State Micro-Tax (5%)</span>
-            <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z"></path></svg>
-            </div>
-          </div>
-          <div>
-            <div id="metric-tax-holdback" class="text-xl sm:text-2xl font-bold tracking-tight text-amber-400 font-mono-nums truncate">
-              0.00 د.ج
-            </div>
-            <div class="text-[11px] sm:text-xs font-arabic text-slate-400 mt-1">
-              ضريبة الدولة الجزافية (5% ANAE)
-            </div>
-          </div>
-          <div class="pt-2 border-t border-slate-800/80 flex items-center justify-between text-[10px] text-slate-500">
-            <span>Fiscal Framework</span>
-            <span class="font-mono text-amber-400 font-medium">5.00% IFU Loi 22-23</span>
-          </div>
-        </div>
-
-        <!-- Metric 4: Net Merchant Pay (93%) -->
-        <div class="bg-[#0f172a] p-4 sm:p-5 rounded-xl border border-slate-800 space-y-2 sm:space-y-3">
-          <div class="flex items-center justify-between text-slate-400">
-            <span class="text-[11px] font-semibold uppercase tracking-wider">Net Merchant Pay (93%)</span>
-            <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-            </div>
-          </div>
-          <div>
-            <div id="metric-merchant-pay" class="text-xl sm:text-2xl font-bold tracking-tight text-cyan-400 font-mono-nums truncate">
-              0.00 د.ج
-            </div>
-            <div class="text-[11px] sm:text-xs font-arabic text-slate-400 mt-1">
-              مستحقات المقاول للتحويل للـ RIB
-            </div>
-          </div>
-          <div class="pt-2 border-t border-slate-800/80 flex items-center justify-between text-[10px] text-slate-500">
-            <span>Bank Settlement</span>
-            <span class="font-mono text-slate-300 font-medium">T+1 Auto-RIB</span>
-          </div>
-        </div>
-
-      </div>
-
-      <!-- ===================================================================== -->
-      <!-- 1. NEW ACCESSIBILITY DESIGN: PERSISTENT PDF BUTTON PINNED IN DASHBOARD -->
-      <!-- ===================================================================== -->
-      <div class="w-full">
-        <button
-          id="btnPersistentInvoicePdf"
-          onclick="handleOpenLatestInvoicePdf()"
-          class="w-full group p-4 sm:p-4.5 rounded-xl bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-500 hover:from-emerald-500 hover:to-teal-500 text-slate-950 font-bold text-xs sm:text-sm shadow-lg shadow-emerald-500/25 active:scale-[0.99] transition-all flex flex-col sm:flex-row items-center justify-between gap-3 animate-pulse cursor-pointer border border-emerald-400/50"
-        >
-          <div class="flex items-center gap-3 text-center sm:text-left">
-            <div class="w-9 h-9 rounded-lg bg-slate-950 text-emerald-400 flex items-center justify-center text-lg shrink-0 shadow-md">
-              📄
-            </div>
-            <div class="flex flex-col text-slate-950 text-right sm:text-left">
-              <span class="font-extrabold text-sm sm:text-base leading-tight font-arabic tracking-tight">
-                📄 عرض ومعاينة آخر فاتورة صادرة وتحميلها كـ PDF
-              </span>
-              <span class="text-[11px] text-slate-900 font-medium font-arabic mt-0.5">
-                توليد فوري وتحميل مباشر لملف الفاتورة الضريبية الرسمية على هاتفك المحمول (A4 PDF)
-              </span>
-            </div>
-          </div>
-
-          <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-950/20 backdrop-blur-sm border border-slate-950/30 text-slate-950 text-xs font-mono font-bold shrink-0">
-            <span>Instant Download</span>
-            <svg class="w-4 h-4 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-          </div>
-        </button>
-      </div>
-
-      <!-- Automated Split Visual Bar -->
-      <div class="bg-[#0f172a] p-4 sm:p-5 rounded-xl border border-slate-800 space-y-3">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-xs">
-          <h3 class="font-semibold text-white">
-            Automated Profit & Fiscal Split Architecture
-          </h3>
-          <span class="text-slate-400 font-mono text-[11px]">Gross (100%) = Merchant (93%) + ANAE Tax (5%) + Platform Commission (2%)</span>
-        </div>
-
-        <div class="space-y-2">
-          <div class="h-3.5 w-full bg-slate-800 rounded-full overflow-hidden flex shadow-inner">
-            <div id="progress-bar-merchant" style="width: 93%" class="bg-cyan-500 h-full flex items-center justify-center text-[9px] font-bold text-slate-950 font-mono" title="93% Merchant Share">
-              93% Merchant
-            </div>
-            <div id="progress-bar-tax" style="width: 5%" class="bg-amber-500 h-full" title="5% State Tax"></div>
-            <div id="progress-bar-platform" style="width: 2%" class="bg-emerald-400 h-full" title="2% Platform Owner Share"></div>
-          </div>
-          
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-[11px] sm:text-xs text-slate-400 pt-1">
-            <div class="flex items-center gap-1.5">
-              <span class="w-2.5 h-2.5 rounded-sm bg-cyan-500 inline-block"></span>
-              <span>Merchant (93%): <strong id="progress-merchant-amount" class="text-cyan-300 font-mono">0.00 د.ج</strong></span>
-            </div>
-            <div class="flex items-center gap-1.5">
-              <span class="w-2.5 h-2.5 rounded-sm bg-emerald-400 inline-block"></span>
-              <span>عمولة المنصة (2%): <strong id="progress-platform-amount" class="text-emerald-400 font-mono">0.00 د.ج</strong></span>
-            </div>
-            <div class="flex items-center gap-1.5 sm:justify-end">
-              <span class="w-2.5 h-2.5 rounded-sm bg-amber-500 inline-block"></span>
-              <span>الضريبة (5%): <strong id="progress-tax-amount" class="text-amber-400 font-mono">0.00 د.ج</strong></span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Chronological Payment Table -->
-      <div class="bg-[#0f172a] border border-slate-800 rounded-xl overflow-hidden p-4 sm:p-6 space-y-4">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div>
-            <h2 class="text-base font-bold text-white tracking-tight">
-              Live Gateway Pipeline & Fee Accounting Ledger
-            </h2>
-            <p class="text-xs text-slate-400 font-arabic mt-0.5">
-              سجل المعاملات مع تتبع عمولة المنصة 2% وضريبة المقاول الذاتي 5%
-            </p>
-          </div>
-
-          <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-            <input
-              type="text"
-              id="table-search-input"
-              oninput="renderTransactionsTable()"
-              placeholder="Search invoice, client..."
-              class="px-3 py-1.5 bg-[#090d16] border border-slate-700 rounded-lg text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 w-full sm:w-52"
-            />
-            <select
-              id="table-filter-state"
-              onchange="renderTransactionsTable()"
-              class="px-3 py-1.5 bg-[#090d16] border border-slate-700 rounded-lg text-xs text-slate-300 focus:outline-none focus:border-emerald-500 font-mono"
-            >
-              <option value="ALL">All States</option>
-              <option value="PAID_VERIFIED">PAID_VERIFIED</option>
-              <option value="READY_FOR_APPROVAL">READY_FOR_APPROVAL</option>
-              <option value="SUBMITTED">SUBMITTED</option>
-              <option value="ACCEPTED">ACCEPTED</option>
-              <option value="DISCOVERED">DISCOVERED</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="overflow-x-auto -mx-4 sm:mx-0">
-          <table class="w-full text-xs text-left min-w-[620px]">
-            <thead class="bg-[#090d16]/70 text-slate-400 border-b border-slate-800 uppercase font-mono text-[10px] sm:text-[11px]">
-              <tr>
-                <th class="py-2.5 px-3 font-semibold">Invoice #</th>
-                <th class="py-2.5 px-3 font-semibold">Client</th>
-                <th class="py-2.5 px-3 font-semibold text-right">Gross Total</th>
-                <th class="py-2.5 px-3 font-semibold text-right text-emerald-400">Fee (2%)</th>
-                <th class="py-2.5 px-3 font-semibold text-right text-amber-400">Tax (5%)</th>
-                <th class="py-2.5 px-3 font-semibold text-right text-cyan-400">Net Pay (93%)</th>
-                <th class="py-2.5 px-3 font-semibold text-center">Status</th>
-                <th class="py-2.5 px-3 font-semibold text-right">Action</th>
-              </tr>
-            </thead>
-            <tbody id="transactions-tbody" class="divide-y divide-slate-800/80">
-              <!-- Rendered via JS -->
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-    </div>
-
-    <!-- VIEW 2: PAYMENT LINKS VIEW -->
-    <div id="view-links" class="space-y-6 hidden">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 sm:p-5 rounded-xl bg-[#0f172a] border border-slate-800">
         <div>
-          <h2 class="text-base sm:text-lg font-bold text-white tracking-tight">Active Smart Payment Links (روابط الدفع الذكية)</h2>
-          <p class="text-xs text-slate-400 font-arabic mt-0.5">روابط مجهزة بحساب عمولة المنصة 2% وضريبة الـ 5% تلقائياً للزبائن</p>
+          <div class="font-bold text-sm text-white flex items-center gap-2">
+            <span>تنبيه: رصيد التحويل المعلق تجاوز الحد المسموح به!</span>
+            <span id="alert-excess-badge" class="text-[10px] font-mono bg-rose-950 text-rose-300 px-1.5 py-0.5 rounded border border-rose-500/40">تجاوز</span>
+          </div>
+          <p class="text-xs text-slate-300 mt-0.5">
+            الرصيد المعلق الحالي: <strong id="alert-pending-val" class="text-amber-400 font-mono">0.00 DZD</strong> (الحد الأقصى في الخزنة: <span id="alert-threshold-val" class="font-mono">50,000 DZD</span>).
+          </p>
         </div>
-        <button onclick="openCreateLinkModal()" class="px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold transition-all shadow-md">
-          + New Payment Link
-        </button>
+      </div>
+      <button onclick="settlePendingPayout()" class="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold rounded-lg transition-all cursor-pointer whitespace-nowrap active:scale-95">
+        تسوية وتحويل للـ RIB
+      </button>
+    </div>
+
+    <!-- بطاقات المؤشرات المالية الخمسة (The 5 Metric Tiles) -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+      <!-- 1: Gross Total -->
+      <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-2">
+        <span class="text-[11px] font-semibold text-slate-400 uppercase">Gross Total (100%)</span>
+        <div id="metric-gross" class="text-xl font-bold font-mono-nums text-white">15,000.00 DZD</div>
+        <div class="text-[11px] text-slate-400">إجمالي مدفوعات العملاء</div>
       </div>
 
-      <div id="links-cards-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <!-- Rendered via JS -->
+      <!-- 2: Net Merchant (93%) -->
+      <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-2">
+        <span class="text-[11px] font-semibold text-cyan-400 uppercase">Net Merchant (93%)</span>
+        <div id="metric-net" class="text-xl font-bold font-mono-nums text-cyan-400">13,950.00 DZD</div>
+        <div class="text-[11px] text-slate-400">صافي أرباح المقاول للـ RIB</div>
+      </div>
+
+      <!-- 3: Payout Pending -->
+      <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-2">
+        <span class="text-[11px] font-semibold text-amber-400 uppercase">Payout Pending</span>
+        <div id="metric-pending" class="text-xl font-bold font-mono-nums text-amber-400">0.00 DZD</div>
+        <div class="text-[11px] text-slate-400">رصيد قيد التحويل البنكي</div>
+      </div>
+
+      <!-- 4: Platform Fee (2%) -->
+      <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-2">
+        <span class="text-[11px] font-semibold text-emerald-400 uppercase">Platform Fee (2%)</span>
+        <div id="metric-platform" class="text-xl font-bold font-mono-nums text-emerald-400">300.00 DZD</div>
+        <div class="text-[11px] text-slate-400">عمولة المنصة الصافية</div>
+      </div>
+
+      <!-- 5: State Tax (5%) -->
+      <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-2">
+        <span class="text-[11px] font-semibold text-amber-400 uppercase">State Tax (5%)</span>
+        <div id="metric-tax" class="text-xl font-bold font-mono-nums text-amber-400">750.00 DZD</div>
+        <div class="text-[11px] text-slate-400">ضريبة IFU للخزينة</div>
       </div>
     </div>
 
-    <!-- VIEW 3: INVOICES VIEW -->
-    <div id="view-invoices" class="space-y-6 hidden">
-      <div class="p-4 sm:p-5 rounded-xl bg-[#0f172a] border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h2 class="text-base sm:text-lg font-bold text-white tracking-tight">Official ANAE Tax Invoices (الفواتير الجبائية المعتمدة)</h2>
-          <p class="text-xs text-slate-400 font-arabic mt-0.5">فواتير رقمية رسمية مع إمكانية التحميل الفوري بصيغة PDF على جهازك</p>
+    <!-- أزرار الإجراء السريع: معاينة الفاتورة + تصدير CSV -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <button onclick="openInvoiceModal()" class="p-4 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 text-slate-950 font-bold flex items-center justify-between transition-all hover:opacity-95 cursor-pointer shadow-lg active:scale-95">
+        <div class="flex items-center gap-3">
+          <span class="text-2xl">📄</span>
+          <div class="text-right">
+            <div class="text-sm font-extrabold">View Dynamic Invoice Panel</div>
+            <div class="text-[11px] font-medium opacity-90">معاينة الفاتورة الضريبية التفاعلية (Loi 22-23)</div>
+          </div>
         </div>
+        <span class="px-3 py-1.5 rounded-lg bg-slate-950/20 text-xs font-mono">Open Panel →</span>
+      </button>
+
+      <button onclick="exportCSV()" class="p-4 rounded-xl bg-slate-900 hover:bg-slate-850 border border-cyan-500/40 text-white font-bold flex items-center justify-between transition-all cursor-pointer active:scale-95">
+        <div class="flex items-center gap-3">
+          <span class="text-2xl">📊</span>
+          <div class="text-right">
+            <div class="text-sm font-extrabold">تصدير سجل المعاملات كملف CSV</div>
+            <div class="text-[11px] text-slate-400">تنزيل ملف Excel و Sheets مع التقسيم الضريبي</div>
+          </div>
+        </div>
+        <span class="px-3 py-1.5 rounded-lg bg-cyan-500/10 text-cyan-400 text-xs font-mono border border-cyan-500/30">Export CSV ↓</span>
+      </button>
+    </div>
+
+    <!-- جدول المعاملات المالية والسجل المحلي -->
+    <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden p-5 space-y-4">
+      <div class="flex items-center justify-between">
+        <h2 class="text-base font-bold text-white">سجل العمليات المصرفية والفواتير</h2>
+        <span class="text-xs text-slate-400 font-mono">Chargily v2 / BaridiMob</span>
       </div>
-      <div id="invoices-list-container" class="space-y-4">
-        <!-- Reuses table clone -->
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-xs text-right border-collapse">
+          <thead>
+            <tr class="border-b border-slate-800 text-slate-400 font-mono text-[11px]">
+              <th class="py-2.5 px-3">رقم الفاتورة والتاريخ</th>
+              <th class="py-2.5 px-3">العميل</th>
+              <th class="py-2.5 px-3">الإجمالي (100%)</th>
+              <th class="py-2.5 px-3">الضريبة (5%)</th>
+              <th class="py-2.5 px-3">الصافي (93%)</th>
+              <th class="py-2.5 px-3 text-center">الحالة</th>
+              <th class="py-2.5 px-3 text-center">معاينة</th>
+            </tr>
+          </thead>
+          <tbody id="transactions-body" class="divide-y divide-slate-800/60 font-mono">
+            <tr>
+              <td class="py-3 px-3">
+                <span class="font-bold text-slate-200">INV-ANAE-2026-1706</span>
+                <span class="text-slate-500 block text-[10px]">2026-10-25 · EDAHABIA</span>
+              </td>
+              <td class="py-3 px-3 font-sans">
+                <span class="font-bold text-slate-100">Ishak</span>
+                <span class="text-slate-500 block text-[10px]">ishak.client@dz.net</span>
+              </td>
+              <td class="py-3 px-3 text-white font-bold">15,000.00 DZD</td>
+              <td class="py-3 px-3 text-amber-400 font-bold">-750.00 DZD</td>
+              <td class="py-3 px-3 text-cyan-400 font-bold">13,950.00 DZD</td>
+              <td class="py-3 px-3 text-center">
+                <span class="px-2 py-0.5 rounded text-[10px] bg-emerald-950 text-emerald-400 border border-emerald-500/40">PAID_VERIFIED</span>
+              </td>
+              <td class="py-3 px-3 text-center">
+                <button onclick="openInvoiceModal()" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700 transition-colors cursor-pointer">
+                  معاينة 📄
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
 
   </main>
 
-  <!-- ========================================================================= -->
-  <!-- 3. FOOTER (Quiet, Mobile Safe)                                            -->
-  <!-- ========================================================================= -->
-  <footer class="border-t border-slate-800/80 bg-[#090d16] py-5 text-xs text-slate-500 mt-auto">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
-      <div class="flex items-center gap-2">
-        <span class="font-semibold text-slate-400">ANAE-Pay Link</span>
-        <span>·</span>
-        <span class="font-arabic">منصة المقاول الذاتي للمدفوعات الرقمية</span>
-      </div>
-      <div class="flex flex-wrap items-center justify-center gap-3 text-[10px] sm:text-[11px] font-mono">
-        <span>Platform Fee: 2.0%</span>
-        <span>·</span>
-        <span>ANAE IFU Tax: 5.0%</span>
-        <span>·</span>
-        <span>Loi N° 22-23</span>
-      </div>
-    </div>
-  </footer>
-
-  <!-- ========================================================================= -->
-  <!-- 4. MODALS & INTERACTION DRAWERS                                           -->
-  <!-- ========================================================================= -->
-
-  <!-- MODAL 1: VAULT MANAGEMENT MODAL WITH STRICT PASSWORD PROTECTION -->
-  <div id="vaultModal" class="fixed inset-0 z-50 bg-[#090d16]/85 backdrop-blur-sm hidden items-center justify-center p-3 sm:p-4 overflow-y-auto">
-    <div class="bg-[#0f172a] border border-slate-800 rounded-xl p-5 sm:p-7 max-w-xl w-full my-6 space-y-5 shadow-2xl relative">
+  <!-- ==================== 3. مودال لوحة الفاتورة الضريبية ==================== -->
+  <div id="invoiceModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-3 sm:p-4 overflow-y-auto print:p-0 print:bg-white print:fixed print:inset-0">
+    <div id="invoice-modal-content" class="bg-slate-900 border border-slate-800 rounded-2xl max-w-3xl w-full p-4 sm:p-8 shadow-2xl relative my-6 print:m-0 print:p-0 print:border-none print:shadow-none print:bg-white print:max-w-none text-slate-100">
       
-      <!-- Top Modal Header -->
-      <div class="flex items-center justify-between pb-3.5 border-b border-slate-800">
-        <div class="flex items-center gap-2.5">
-          <div class="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
-          </div>
-          <div>
-            <h3 class="text-base sm:text-lg font-bold text-white tracking-tight">ANAE Gateway Vault</h3>
-            <p class="text-xs text-slate-400 font-arabic mt-0.5">خزنة الحساب البنكي الجزائري والمفاتيح السرية</p>
-          </div>
-        </div>
-        <button onclick="closeVaultModal()" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-        </button>
-      </div>
-
-      <!-- 1.1 PASSWORD CHALLENGE & SETUP OVERLAY -->
-      <div id="vault-auth-view" class="space-y-4 py-2">
-        <div class="p-4 rounded-xl bg-[#090d16] border border-slate-800 text-center space-y-2">
-          <div class="w-11 h-11 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto mb-1">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
-          </div>
-          <h4 id="auth-challenge-title" class="text-sm sm:text-base font-bold text-white">Master Password Authentication</h4>
-          <p id="auth-challenge-desc" class="text-xs text-slate-400 font-arabic max-w-sm mx-auto">
-            هذه المنطقة محمية بكلمة مرور رئيسية لحماية بيانات الحساب البنكي (RIB) والمفاتيح البرمجية السرية.
-          </p>
-        </div>
-
-        <div id="auth-error-banner" class="hidden p-2.5 rounded-lg border bg-rose-950/60 border-rose-500 text-rose-300 text-xs text-center font-arabic"></div>
-
-        <!-- Initial Setup Form -->
-        <div id="auth-setup-container" class="space-y-3.5 hidden">
-          <div>
-            <label class="block text-xs font-semibold text-slate-300 mb-1">New Master Password (إنشاء كلمة مرور رئيسية)</label>
-            <input type="password" id="vault_new_pw" placeholder="Enter password (min 6 characters)" class="w-full px-3 py-2 bg-[#090d16] border border-slate-700 rounded-lg text-xs text-white focus:outline-none focus:border-emerald-500" />
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-300 mb-1">Confirm Master Password (تأكيد كلمة المرور)</label>
-            <input type="password" id="vault_confirm_pw" placeholder="Re-type password" class="w-full px-3 py-2 bg-[#090d16] border border-slate-700 rounded-lg text-xs text-white focus:outline-none focus:border-emerald-500" />
-          </div>
-          <button type="button" onclick="handleSetupMasterPassword()" class="w-full py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold transition-all shadow-md">
-            Save Password & Unlock Vault
-          </button>
-        </div>
-
-        <!-- Unlock Challenge Form -->
-        <div id="auth-unlock-container" class="space-y-3.5">
-          <div>
-            <label class="block text-xs font-semibold text-slate-300 mb-1">Enter Master Password (أدخل كلمة المرور لفتح الخزنة)</label>
-            <input type="password" id="vault_auth_input" onkeydown="if(event.key === 'Enter') handleUnlockVault()" placeholder="••••••••" class="w-full px-3 py-2 bg-[#090d16] border border-slate-700 rounded-lg text-sm text-white focus:outline-none focus:border-emerald-500 font-mono tracking-widest" />
-          </div>
-          <button type="button" id="btnUnlockVault" onclick="handleUnlockVault()" class="w-full py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold transition-all shadow-md shadow-emerald-500/20 flex items-center justify-center gap-2">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"></path></svg>
-            <span>Unlock Vault (فك تشفير الخزنة)</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- 1.2 UNLOCKED VAULT FIELDS -->
-      <div id="vault-fields-view" class="space-y-4 hidden">
-        <div class="flex items-center justify-between p-2.5 rounded-lg bg-emerald-950/40 border border-emerald-500/30 text-xs text-emerald-300">
-          <span class="flex items-center gap-1.5">
-            <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
-            <span>Vault Decrypted & Unlocked</span>
-          </span>
-          <button type="button" onclick="lockVault()" class="text-[11px] underline text-slate-400 hover:text-white">
-            Lock Now
-          </button>
-        </div>
-
-        <div id="vaultFeedback" class="hidden p-2.5 rounded-lg border text-xs"></div>
-
-        <form id="vaultForm" onsubmit="handleSaveVault(event)" class="space-y-3.5">
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-              <label class="block text-xs font-medium text-slate-400 mb-1">Business Name (الاسم التجاري)</label>
-              <input type="text" id="v_business_name" required class="w-full px-3 py-2 bg-[#090d16] border border-slate-700 rounded-lg text-xs text-white focus:outline-none focus:border-emerald-500" />
-            </div>
-            <div>
-              <label class="block text-xs font-medium text-slate-400 mb-1">Carte ANAE (رقم بطاقة المقاول)</label>
-              <input type="text" id="v_anae_card" required placeholder="24-0014892" class="w-full px-3 py-2 bg-[#090d16] border border-slate-700 rounded-lg text-xs text-white font-mono focus:outline-none focus:border-emerald-500" />
-            </div>
-          </div>
-
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-              <!-- NIF EXACTLY MATCHING 20-DIGIT MODERN FRAMEWORK -->
-              <label class="block text-xs font-medium text-slate-400 mb-1">
-                NIF (20 رقماً) - الرقم الجبائي *
-              </label>
-              <input
-                type="text"
-                id="v_nif"
-                maxlength="20"
-                required
-                placeholder="19719020004318501980"
-                class="w-full px-3 py-2 bg-[#090d16] border border-slate-700 rounded-lg text-xs text-white font-mono focus:outline-none focus:border-emerald-500"
-              />
-              <span class="text-[10px] text-slate-500 mt-0.5 block">الرقم الجبائي الجزائري المحدث (20 رقماً)</span>
-            </div>
-            <div>
-              <label class="block text-xs font-medium text-slate-400 mb-1">Bank Name (المؤسسة المالية)</label>
-              <select id="v_bank_name" class="w-full px-3 py-2 bg-[#090d16] border border-slate-700 rounded-lg text-xs text-white focus:outline-none focus:border-emerald-500">
-                <option value="Algérie Poste (BaridiMob / CCP)">Algérie Poste (BaridiMob / CCP)</option>
-                <option value="Banque Nationale d'Algérie (BNA)">Banque Nationale d'Algérie (BNA)</option>
-                <option value="Banque Extérieure d'Algérie (BEA)">Banque Extérieure d'Algérie (BEA)</option>
-                <option value="Crédit Populaire d'Algérie (CPA)">Crédit Populaire d'Algérie (CPA)</option>
-                <option value="Banque de Développement Local (BDL)">Banque de Développement Local (BDL)</option>
-                <option value="Caisse Nationale d'Epargne (CNEP)">Caisse Nationale d'Epargne (CNEP)</option>
-              </select>
-            </div>
-          </div>
-
-          <div>
-            <label class="block text-xs font-medium text-slate-400 mb-1">Local Bank RIB (20 Digits - رقم الحساب الكامل)</label>
-            <input type="text" id="v_rib" maxlength="20" required placeholder="00799999000184920381" class="w-full px-3 py-2 bg-[#090d16] border border-slate-700 rounded-lg text-xs text-white font-mono tracking-wider focus:outline-none focus:border-emerald-500" />
-          </div>
-
-          <div class="pt-2.5 border-t border-slate-800 space-y-2.5">
-            <div class="flex items-center justify-between">
-              <span class="text-xs font-semibold text-slate-300">Chargily Pay v2 API Tokens</span>
-              <label class="flex items-center gap-1.5 text-xs text-slate-400 font-mono cursor-pointer">
-                <input type="checkbox" id="v_live_mode" class="rounded border-slate-700 bg-slate-900 text-emerald-500" />
-                <span>Live Mode (Production)</span>
-              </label>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div>
-                <label class="block text-[11px] font-medium text-slate-400 mb-1">Public Key</label>
-                <input type="text" id="v_chargily_pk" placeholder="test_pk_..." class="w-full px-3 py-2 bg-[#090d16] border border-slate-700 rounded-lg text-xs text-white font-mono focus:outline-none focus:border-emerald-500" />
-              </div>
-              <div>
-                <label class="block text-[11px] font-medium text-slate-400 mb-1">Secret Key (Token)</label>
-                <input type="password" id="v_chargily_sk" placeholder="test_sk_..." class="w-full px-3 py-2 bg-[#090d16] border border-slate-700 rounded-lg text-xs text-white font-mono focus:outline-none focus:border-emerald-500" />
-              </div>
-            </div>
-          </div>
-
-          <div class="pt-2 border-t border-slate-800 flex items-center justify-between text-xs">
-            <span class="text-slate-400 text-[11px]">Master Password is set</span>
-            <button type="button" onclick="promptChangePassword()" class="text-emerald-400 hover:underline text-[11px]">
-              Reset Master Password
-            </button>
-          </div>
-
-          <div class="pt-3 flex items-center justify-end gap-2 border-t border-slate-800">
-            <button type="button" onclick="closeVaultModal()" class="px-3.5 py-2 rounded-lg border border-slate-700 text-xs text-slate-300 hover:bg-slate-800">Close</button>
-            <button type="submit" class="px-5 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold transition-all shadow-md">
-              Save Vault
-            </button>
-          </div>
-        </form>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- MODAL 2: CREATE PAYMENT LINK (WITH FIXED 2% & 5% MATRIX) -->
-  <div id="createLinkModal" class="fixed inset-0 z-50 bg-[#090d16]/85 backdrop-blur-sm hidden items-center justify-center p-3 sm:p-4 overflow-y-auto">
-    <div class="bg-[#0f172a] border border-slate-800 rounded-xl p-5 sm:p-7 max-w-lg w-full my-6 space-y-4 shadow-2xl relative">
-      <div class="flex items-center justify-between pb-3 border-b border-slate-800">
-        <div>
-          <h3 class="text-base sm:text-lg font-bold text-white tracking-tight">Create Smart Payment Link</h3>
-          <p class="text-xs text-slate-400 font-arabic mt-0.5">حساب تلقائي لعمولة المنصة 2% وضريبة الـ 5% للمقاول</p>
-        </div>
-        <button onclick="closeCreateLinkModal()" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-        </button>
-      </div>
-
-      <form id="createLinkForm" onsubmit="handleCreateLink(event)" class="space-y-3.5">
-        <div>
-          <label class="block text-xs font-semibold text-slate-300 mb-1">Item / Service Title *</label>
-          <input type="text" id="link_title" required placeholder="مثال: اشتراك سنوي في المنصة أو خدمة استشارية" class="w-full px-3 py-2 bg-[#090d16] border border-slate-700 rounded-lg text-xs text-white focus:outline-none focus:border-emerald-500" />
-        </div>
-
-        <div>
-          <label class="block text-xs font-medium text-slate-400 mb-1">Billing Description</label>
-          <textarea id="link_desc" rows="2" placeholder="وصف الخدمة أو تفاصيل التسليم..." class="w-full px-3 py-2 bg-[#090d16] border border-slate-700 rounded-lg text-xs text-white focus:outline-none focus:border-emerald-500 resize-none"></textarea>
-        </div>
-
-        <div>
-          <label class="block text-xs font-semibold text-white mb-1">
-            Gross Total (المبلغ الإجمالي المعروض للزبون) *
-          </label>
-          <div class="relative">
-            <input
-              type="number"
-              id="link_gross_amount"
-              min="100"
-              step="50"
-              value="15000"
-              oninput="updateLinkCalculationMatrix()"
-              required
-              class="w-full px-3 py-2 bg-[#090d16] border border-emerald-500/50 rounded-lg text-sm text-emerald-400 font-mono font-bold focus:outline-none focus:border-emerald-400"
-            />
-          </div>
-          <span class="text-[10px] text-slate-500 mt-0.5 block">المبلغ الذي يدفعه الزبون كاملاً عبر البطاقة الذهبية أو CIB</span>
-        </div>
-
-        <!-- 3-WAY SPLIT LIVE PREVIEW CARD -->
-        <div class="p-3.5 rounded-lg bg-[#090d16] border border-slate-800 space-y-2 text-xs">
-          <div class="flex items-center justify-between text-slate-400 font-semibold text-[11px]">
-            <span>Automated 3-Way Split (2% / 5% / 93%)</span>
-            <span class="text-emerald-400 font-mono font-bold">Loi ANAE Compliant</span>
-          </div>
-
-          <div class="grid grid-cols-3 gap-2 text-center pt-1 border-t border-slate-800/80">
-            <div class="p-1.5 rounded bg-emerald-950/40 border border-emerald-500/30">
-              <span class="text-[10px] text-emerald-400 block font-arabic">عمولة المنصة 2%</span>
-              <span id="preview-calc-platform" class="text-xs font-mono font-bold text-emerald-400">300.00 د.ج</span>
-            </div>
-            <div class="p-1.5 rounded bg-amber-950/40 border border-amber-500/30">
-              <span class="text-[10px] text-amber-400 block font-arabic">ضريبة الدولة 5%</span>
-              <span id="preview-calc-tax" class="text-xs font-mono font-bold text-amber-400">750.00 د.ج</span>
-            </div>
-            <div class="p-1.5 rounded bg-cyan-950/40 border border-cyan-500/30">
-              <span class="text-[10px] text-cyan-400 block font-arabic">صافي التاجر 93%</span>
-              <span id="preview-calc-merchant" class="text-xs font-mono font-bold text-cyan-300">13,950.00 د.ج</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div>
-            <label class="block text-xs font-medium text-slate-400 mb-1">Client Name</label>
-            <input type="text" id="link_client_name" placeholder="Client Name" class="w-full px-3 py-2 bg-[#090d16] border border-slate-700 rounded-lg text-xs text-white focus:outline-none focus:border-emerald-500" />
-          </div>
-          <div>
-            <label class="block text-xs font-medium text-slate-400 mb-1">Client Email</label>
-            <input type="email" id="link_client_email" placeholder="client@dz.net" class="w-full px-3 py-2 bg-[#090d16] border border-slate-700 rounded-lg text-xs text-white focus:outline-none focus:border-emerald-500" />
-          </div>
-        </div>
-
-        <div id="chargilyStatusNotice" class="text-[11px] text-slate-400 font-mono truncate"></div>
-
-        <div class="pt-2">
-          <button type="submit" id="btnSubmitLink" class="w-full py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold transition-all shadow-md shadow-emerald-500/20 flex items-center justify-center gap-2">
-            <span>Generate & Connect Chargily Pay</span>
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- MODAL 3: CHECKOUT SIMULATOR (EDAHABIA / CIB) -->
-  <div id="checkoutModal" class="fixed inset-0 z-50 bg-[#090d16]/85 backdrop-blur-sm hidden items-center justify-center p-3 sm:p-4 overflow-y-auto">
-    <div class="bg-[#0f172a] border border-slate-800 rounded-2xl max-w-md w-full my-6 overflow-hidden shadow-2xl relative">
-      <div class="p-4 bg-[#090d16] border-b border-slate-800 flex items-center justify-between">
-        <div class="flex items-center gap-2">
-          <span class="text-base">🇩🇿</span>
-          <div class="text-xs font-bold text-white">Chargily Pay Hosted Gateway · SATIM</div>
-        </div>
-        <button onclick="closeCheckoutModal()" class="text-slate-400 hover:text-white p-1">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-        </button>
-      </div>
-
-      <div class="p-4 sm:p-5 bg-gradient-to-b from-[#090d16] to-[#0f172a] border-b border-slate-800 flex justify-between items-center">
-        <div>
-          <span class="text-[10px] text-slate-400 uppercase tracking-wider block">Total To Pay</span>
-          <span id="ck-amount-display" class="text-xl sm:text-2xl font-bold font-mono text-emerald-400">0.00 د.ج</span>
-          <span id="ck-title-display" class="text-xs text-slate-300 block truncate max-w-[180px] mt-0.5">Title</span>
-        </div>
-        <div class="text-[10px] text-slate-400 font-mono text-right">
-          <div class="text-emerald-400 font-semibold">TTC Sécurisé</div>
-          <div>ANAE IFU 5%</div>
-        </div>
-      </div>
-
-      <div class="p-4 sm:p-5 space-y-4">
-        <!-- Breakdown Preview for End-User Transparency -->
-        <div class="p-3 rounded-lg bg-[#090d16] border border-slate-800 text-xs font-mono space-y-1">
-          <div class="flex justify-between text-slate-400">
-            <span>Montant Transaction (Gross):</span>
-            <span id="ck-split-gross" class="text-white font-bold">0.00 د.ج</span>
-          </div>
-          <div class="flex justify-between text-slate-400">
-            <span>Frais de plateforme (2%):</span>
-            <span id="ck-split-platform" class="text-emerald-400">0.00 د.ج</span>
-          </div>
-          <div class="flex justify-between text-slate-400">
-            <span>Taxe Fiscale IFU (5%):</span>
-            <span id="ck-split-tax" class="text-amber-400">0.00 د.ج</span>
-          </div>
-        </div>
-
-        <div>
-          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Select Algerian Payment Card:</label>
-          <div class="grid grid-cols-2 gap-2">
-            <button type="button" onclick="selectCardMethod('EDAHABIA')" id="card-btn-edahabia" class="p-2.5 rounded-lg border border-amber-500 bg-amber-950/20 text-white text-left">
-              <div class="text-xs font-bold text-amber-400 font-arabic">البطاقة الذهبية</div>
-              <div class="text-[10px] text-slate-400 font-mono">Algérie Poste</div>
-            </button>
-            <button type="button" onclick="selectCardMethod('CIB')" id="card-btn-cib" class="p-2.5 rounded-lg border border-slate-700 bg-[#090d16] text-slate-400 text-left">
-              <div class="text-xs font-bold text-emerald-400">Carte CIB</div>
-              <div class="text-[10px] text-slate-400 font-mono">Interbancaire</div>
-            </button>
-          </div>
-        </div>
-
-        <div class="space-y-2.5">
-          <div>
-            <label class="block text-[11px] font-medium text-slate-400 mb-1">Card Number (16 Digits)</label>
-            <input type="text" id="ck_card_number" value="6280 5824 1092 3844" class="w-full px-3 py-2 bg-[#090d16] border border-slate-700 rounded-lg text-xs text-white font-mono focus:outline-none focus:border-emerald-500" />
-          </div>
-          <div class="grid grid-cols-2 gap-2">
-            <div>
-              <label class="block text-[11px] font-medium text-slate-400 mb-1">Expiry</label>
-              <input type="text" id="ck_expiry" value="11/28" class="w-full px-3 py-2 bg-[#090d16] border border-slate-700 rounded-lg text-xs text-white font-mono focus:outline-none focus:border-emerald-500" />
-            </div>
-            <div>
-              <label class="block text-[11px] font-medium text-slate-400 mb-1">CVV2</label>
-              <input type="password" id="ck_cvv" value="892" class="w-full px-3 py-2 bg-[#090d16] border border-slate-700 rounded-lg text-xs text-white font-mono focus:outline-none focus:border-emerald-500" />
-            </div>
-          </div>
-        </div>
-
-        <div class="p-2.5 rounded-lg bg-amber-950/30 border border-amber-500/30 text-xs text-slate-300 space-y-1">
-          <div class="font-bold text-amber-400 text-[11px]">SATIM / BaridiMob SMS OTP Simulation:</div>
-          <div class="flex items-center gap-2 pt-0.5">
-            <input type="text" id="ck_otp" value="482910" maxlength="6" class="w-24 px-2 py-1 text-center bg-[#090d16] border border-slate-700 rounded text-emerald-400 font-mono tracking-widest text-xs focus:outline-none" />
-            <span class="text-[10px] text-slate-400 font-mono">OTP: 482910</span>
-          </div>
-        </div>
-
-        <button type="button" id="btnExecuteCheckout" onclick="executeCustomerPayment()" class="w-full py-3 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold transition-all shadow-md flex items-center justify-center gap-2">
-          <span>Confirmer et Payer (Chargily Gateway)</span>
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL 4: OFFICIAL TAX INVOICE WITH DYNAMIC PDF DOWNLOAD -->
-  <div id="invoicePreviewModal" class="fixed inset-0 z-50 bg-[#090d16]/85 backdrop-blur-sm hidden items-center justify-center p-2 sm:p-4 overflow-y-auto">
-    <div class="bg-[#0f172a] border border-slate-800 rounded-2xl max-w-2xl w-full my-4 sm:my-6 p-3 sm:p-6 shadow-2xl relative space-y-4">
-      
-      <!-- Top Action Bar (Print + Download as PDF + Close) -->
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-800 print:hidden">
-        <div class="flex items-center gap-2">
-          <span class="text-xs font-semibold text-emerald-400 font-mono">FACTURE FISCALE OFFICIELLE</span>
+      <!-- شريط التحكم بالفاتورة (طباعة وإغلاق) -->
+      <div class="flex items-center justify-between pb-4 border-b border-slate-800 mb-6 print:hidden">
+        <div class="flex items-center gap-2 font-mono text-xs">
+          <span class="text-xs font-semibold text-emerald-400">DYNAMIC FISCAL INVOICE</span>
           <span class="text-slate-600">·</span>
-          <span id="inv-modal-number" class="text-xs text-slate-300 font-mono">INV-ANAE-2026-0001</span>
+          <span class="text-slate-300 font-bold">INV-ANAE-2026-1706</span>
+          <span class="text-slate-600">·</span>
+          <span class="px-2 py-0.5 rounded uppercase bg-slate-800 text-emerald-300 border border-emerald-500/30">EDAHABIA</span>
         </div>
-        <div class="flex items-center gap-2">
-          <!-- Official interactive button: "تحميل الفاتورة كملف PDF" -->
-          <button id="btnDownloadPdf" onclick="downloadInvoicePDF()" class="px-3.5 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold transition-all shadow-md flex items-center gap-1.5 cursor-pointer">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-            <span>تحميل الفاتورة كملف PDF</span>
-          </button>
 
-          <button onclick="window.print()" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium border border-slate-700 flex items-center gap-1 cursor-pointer">
-            <svg class="w-3.5 h-3.5 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
-            <span class="hidden sm:inline">Print</span>
+        <div class="flex items-center gap-2.5">
+          <button onclick="window.print()" class="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold shadow-md transition-all cursor-pointer active:scale-95">
+            Print (طباعة / حفظ PDF)
           </button>
-
-          <button onclick="closeInvoiceModal()" class="text-slate-400 hover:text-white p-1">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+          <button onclick="closeInvoiceModal()" class="text-slate-400 hover:text-white p-2 rounded-xl bg-slate-800 hover:bg-slate-700 transition-colors cursor-pointer">
+            ✕
           </button>
         </div>
       </div>
 
-      <!-- Printable & PDF Captured Document Area -->
-      <div id="printInvoiceArea" class="bg-white text-slate-900 rounded-xl p-5 sm:p-7 border border-slate-200 space-y-4 text-xs">
+      <!-- محتوى الفاتورة القانونية القابلة للطباعة -->
+      <div class="bg-white text-slate-950 rounded-xl p-6 sm:p-8 border border-slate-200 space-y-6 print:border-none print:p-0">
         
-        <!-- Header: Official Republic & ANAE -->
-        <div class="text-center pb-3 border-b-2 border-slate-900 space-y-0.5">
-          <div class="text-xs font-arabic font-semibold text-slate-800">الجمهورية الجزائرية الديمقراطية الشعبية</div>
-          <div class="text-[10px] font-semibold tracking-wide text-slate-600 uppercase">République Algérienne Démocratique et Populaire</div>
-          <div class="text-xs font-arabic text-emerald-800 font-bold pt-0.5">الوكالة الوطنية للمقاول الذاتي · Agence Nationale de l'Auto-Entrepreneur (ANAE)</div>
-          <div class="text-[9px] text-slate-500">فاتورة رسمية إلكترونية متوافقة مع القانون 22-23 (نظام IFU 5% واقتطاع المنصة 2%)</div>
+        <!-- الترويسة -->
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-4 pb-4 border-b-2 border-slate-900">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-xl bg-emerald-800 text-white flex items-center justify-center font-bold text-lg font-mono">
+              NS
+            </div>
+            <div>
+              <h1 class="text-base sm:text-lg font-bold text-slate-950 leading-tight">Numidia Software & Design Services</h1>
+              <p class="text-xs text-slate-600">خليل حبري · Khalil Houbari</p>
+            </div>
+          </div>
+
+          <div class="text-center sm:text-left space-y-0.5" dir="ltr">
+            <div class="text-xs font-bold text-slate-900">الجمهورية الجزائرية الديمقراطية الشعبية</div>
+            <div class="text-xs font-bold text-emerald-800">الوكالة الوطنية للمقاول الذاتي · ANAE</div>
+            <div class="text-[10px] text-slate-500 font-mono">Loi N° 22-23 (Régime IFU 5% & Plateforme 2%)</div>
+          </div>
         </div>
 
-        <!-- Parties Split -->
-        <div class="grid grid-cols-2 gap-3 sm:gap-4">
+        <!-- أطراف المعاملة -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 text-xs">
           <div class="space-y-1">
-            <div class="font-bold text-[10px] text-emerald-700 uppercase">1. مقدم الخدمة (Auto-Entrepreneur)</div>
-            <div id="inv-prestataire-name" class="font-bold text-slate-900">Numidia Software</div>
-            <div class="font-mono text-slate-700">NIF (20 رقماً): <span id="inv-prestataire-nif">19719020004318501980</span></div>
-            <div class="font-mono text-slate-700">Carte ANAE: <span id="inv-prestataire-card">24-0014892</span></div>
-            <div class="font-mono text-slate-700 truncate max-w-[200px]">RIB: <span id="inv-prestataire-rib">00799999000184920381</span></div>
+            <div class="font-bold text-emerald-800 text-[11px]">1. مقدم الخدمة (Auto-Entrepreneur)</div>
+            <div class="font-bold text-sm text-slate-950">Numidia Software & Design Services</div>
+            <div class="text-slate-700 font-mono">NIF: <strong>19719020004318501980</strong></div>
+            <div class="text-slate-700 font-mono">Carte ANAE: <strong>24-0014892</strong></div>
+            <div class="text-slate-700 font-mono">RIB: <strong>00799999000000000381</strong></div>
           </div>
-          <div class="space-y-1 text-right">
-            <div class="font-bold text-[10px] text-emerald-700 uppercase">2. العميل (Client Facturé)</div>
-            <div id="inv-client-name" class="font-bold text-slate-900">Client Valide</div>
-            <div id="inv-client-email" class="font-mono text-slate-700">client@dz.net</div>
-            <div class="pt-1 font-mono text-[11px]">
-              <div>Facture N°: <strong id="inv-doc-number" class="text-slate-900">INV-ANAE-2026-0001</strong></div>
-              <div>Date: <strong id="inv-doc-date">25/10/2026</strong></div>
-              <div>Règlement: <strong id="inv-doc-method" class="text-emerald-700">EDAHABIA</strong></div>
+
+          <div class="space-y-1 text-left" dir="ltr">
+            <div class="font-bold text-emerald-800 text-[11px]">2. العميل (Client Facturé)</div>
+            <div class="font-bold text-sm text-slate-950">Ishak</div>
+            <div class="text-slate-700 font-mono">ishak.client@dz.net</div>
+            <div class="pt-2 border-t border-slate-200 mt-2 space-y-0.5 font-mono">
+              <div>Facture N°: <strong class="text-slate-900">INV-ANAE-2026-1706</strong></div>
+              <div>Date: <strong>2026-10-25</strong></div>
+              <div>Mode: <strong class="text-emerald-700">EDAHABIA / BaridiMob</strong></div>
             </div>
           </div>
         </div>
 
-        <!-- Items Table With 2% Platform Fee Item Breakdown -->
-        <table class="w-full text-left border border-slate-300 rounded overflow-hidden">
-          <thead class="bg-slate-100 border-b border-slate-300 text-slate-700 uppercase text-[10px]">
-            <tr>
-              <th class="py-2 px-3">Désignation / البيان</th>
-              <th class="py-2 px-3 text-right">Taux / Nature</th>
-              <th class="py-2 px-3 text-right">Montant (DZD)</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-slate-200">
-            <tr>
-              <td class="py-2 px-3">
-                <div id="inv-item-title" class="font-semibold text-slate-900">Prestation Numérique / Service</div>
-                <div class="text-[10px] text-slate-500 font-arabic">إجمالي القيمة المسددة من العميل</div>
-              </td>
-              <td class="py-2 px-3 text-right font-mono text-slate-500">Gross Total (100%)</td>
-              <td id="inv-item-gross" class="py-2 px-3 text-right font-mono font-bold text-slate-900">15,000.00</td>
-            </tr>
-            <tr class="bg-emerald-50/50">
-              <td class="py-2 px-3">
-                <div class="font-semibold text-emerald-900">Frais de Plateforme ANAE-Pay (Platform Commission)</div>
-                <div class="text-[9px] text-emerald-700 font-arabic">عمولة المنصة الصافية لمالك البوابة</div>
-              </td>
-              <td class="py-2 px-3 text-right font-mono text-emerald-700 font-semibold">2.00%</td>
-              <td id="inv-item-platform" class="py-2 px-3 text-right font-mono font-semibold text-emerald-800">300.00</td>
-            </tr>
-            <tr class="bg-amber-50/50">
-              <td class="py-2 px-3">
-                <div class="font-semibold text-amber-900">Retenue Fiscale Légale IFU (Loi 22-23)</div>
-                <div class="text-[9px] text-amber-700 font-arabic">الضريبة الجزافية الوحيدة 5% المستحقة للخزينة</div>
-              </td>
-              <td class="py-2 px-3 text-right font-mono text-amber-700 font-semibold">5.00%</td>
-              <td id="inv-item-tax" class="py-2 px-3 text-right font-mono font-semibold text-amber-800">750.00</td>
-            </tr>
-          </tbody>
-        </table>
+        <!-- جدول المبالغ والتفاصيل -->
+        <div class="overflow-x-auto">
+          <table class="w-full text-xs text-right border-collapse">
+            <thead>
+              <tr class="border-b-2 border-slate-900 bg-slate-50 text-slate-700 font-bold">
+                <th class="py-2 px-3">الوصف / البيان</th>
+                <th class="py-2 px-3 text-center">الكمية</th>
+                <th class="py-2 px-3 text-left" dir="ltr">المبلغ الإجمالي</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="py-3 px-3">
+                  <div class="font-bold text-slate-950">Web développement & Solutions Numériques</div>
+                  <div class="text-[11px] text-slate-500">تطوير منصة رقمية وتكامل بوابات الدفع الإلكتروني</div>
+                </td>
+                <td class="py-3 px-3 text-center font-mono">1</td>
+                <td class="py-3 px-3 text-left font-mono font-bold text-slate-950" dir="ltr">15,000.00 DZD</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
 
-        <!-- Totals & QR Matrix -->
-        <div class="grid grid-cols-2 gap-4 items-end pt-1">
-          <div id="inv-qr-container" class="flex items-center gap-2 p-2 bg-slate-50 border border-slate-200 rounded">
-            <!-- SVG QR Matrix -->
+        <!-- التقسيم المالي الثلاثي وقفل الفاتورة -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-end pt-2">
+          <div class="p-3 rounded-lg bg-slate-50 border border-slate-200 space-y-1 text-[11px]">
+            <div class="font-bold text-slate-900">المصادقة الجبائية الإلكترونية</div>
+            <div class="text-slate-600 font-mono text-[10px]">Token: REC-DZ-20261025-EDAHABIA</div>
+            <div class="text-emerald-700 font-bold font-mono text-[10px]">✓ PAID & VERIFIED (SATIM/CHARGILY)</div>
           </div>
 
-          <div class="space-y-1 text-right font-mono">
-            <div class="flex justify-between py-1 border-b border-slate-200 text-slate-700">
-              <span>Total Payé (Client):</span>
-              <span id="inv-sum-gross" class="font-bold text-slate-900">15,000.00 DZD</span>
+          <div class="space-y-1.5 text-xs text-left font-mono" dir="ltr">
+            <div class="flex justify-between py-1 border-b border-slate-200">
+              <span class="text-slate-600 font-sans">إجمالي المعاملة:</span>
+              <span class="font-bold text-slate-950">15,000.00 DZD</span>
             </div>
             <div class="flex justify-between py-1 border-b border-slate-200 text-emerald-800">
-              <span>Commission Plateforme (2%):</span>
-              <span id="inv-sum-platform" class="font-bold">-300.00 DZD</span>
+              <span class="font-sans">عمولة المنصة (2%):</span>
+              <span class="font-bold">-300.00 DZD</span>
             </div>
-            <div class="flex justify-between py-1 border-b border-slate-200 text-amber-700">
-              <span>Retenue Impôt IFU (5%):</span>
-              <span id="inv-sum-tax" class="font-bold">-750.00 DZD</span>
+            <div class="flex justify-between py-1 border-b border-slate-200 text-amber-800">
+              <span class="font-sans">ضريبة الدولة (5% IFU):</span>
+              <span class="font-bold">-750.00 DZD</span>
             </div>
             <div class="flex justify-between py-1.5 text-sm font-bold text-cyan-900 border-t-2 border-slate-900">
-              <span>Net à Verser au Prestataire (93%):</span>
-              <span id="inv-sum-net">13,950.00 DZD</span>
+              <span class="font-sans">صافي مستحقات المقاول (93%):</span>
+              <span>13,950.00 DZD</span>
             </div>
           </div>
         </div>
 
-        <!-- Official Legal Mention -->
-        <div class="pt-2 border-t border-slate-200 text-[9px] text-slate-600 space-y-0.5">
-          <p class="font-arabic font-semibold text-right">معفي من الرسم على القيمة المضافة (TVA) خاضع للضريبة الجزافية الوحيدة (IFU) بنسبة 5% بموجب القانون رقم 22-23 الخاص بالنظام الأساسي للمقاول الذاتي وعمولة المنصة 2%</p>
-          <p class="italic text-slate-500">Exonéré de TVA - Soumis à l'Impôt Forfaitaire Unique (IFU 5%) conformément à la loi 22-23. Frais de plateforme prélevés: 2.0%.</p>
+        <!-- خانة الختم الرقمي والتوقيع -->
+        <div class="pt-4 border-t-2 border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div class="text-xs text-slate-600 space-y-0.5 text-right">
+            <div class="font-bold text-slate-900">شهادة الدفع الإلكتروني والتوقيع الرقمي</div>
+            <div class="text-[11px] text-slate-500">معتمد بموجب القانون رقم 15-04 المحدد للقواعد العامة للتوقيع الإلكتروني</div>
+          </div>
+
+          <div class="w-64 p-3 rounded-xl border-2 border-dashed border-emerald-700 bg-emerald-50/40 text-center space-y-0.5">
+            <div class="text-[10px] font-bold text-slate-800">الوكالة الوطنية للمقاول الذاتي</div>
+            <div class="text-xs font-bold text-emerald-800">خليل حبري (Khalil Houbari)</div>
+            <div class="text-[9px] font-mono text-slate-600">ANAE: 24-0014892 · NIF: 19719020004318501980</div>
+            <div class="text-[8px] font-semibold text-emerald-800 uppercase font-mono pt-0.5">
+              ★ المقاول الذاتي المعتمد (Auto-Entrepreneur) ★
+            </div>
+          </div>
         </div>
 
       </div>
+
+      <div class="mt-6 flex items-center justify-between pt-4 border-t border-slate-800 print:hidden">
+        <span class="text-xs text-slate-400 font-mono">Optimized for native system printer & PDF export (Loi 22-23)</span>
+        <button onclick="closeInvoiceModal()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs text-slate-300">Close (إغلاق)</button>
+      </div>
+
     </div>
   </div>
 
-  <!-- ========================================================================= -->
-  <!-- 5. JAVASCRIPT LOGIC & 2% PLATFORM SPLIT PERSISTENCE ENGINE                -->
-  <!-- ========================================================================= -->
+  <!-- ==================== 4. سكريبت التفاعل والتحكم ==================== -->
   <script>
-    // ---------------------------------------------------------------------------
-    // A. DEFAULT STATE & LOCALSTORAGE ACCESSORS
-    // ---------------------------------------------------------------------------
-    const DEFAULT_VAULT = {
-      business_name: 'Numidia Software & Design Services',
-      full_name_ar: 'خليل حوباري',
-      full_name_en: 'Khalil Houbari',
-      anae_card_number: '24-0014892',
-      nif: '19719020004318501980',
-      bank_name: 'Algérie Poste (BaridiMob / CCP)',
-      rib: '00799999000184920381',
-      chargily_pk: 'test_pk_79fa2810ab56402798e1f0e4',
-      chargily_sk: 'test_sk_9a87d0928374901923019283',
-      live_mode: false,
-      status: 'ACTIVE'
-    };
-
-    // Default Seed Transactions (2% platform commission + 5% ANAE micro-tax)
-    const DEFAULT_TRANSACTIONS = [
-      {
-        id: 'tx_01',
-        invoice_number: 'INV-ANAE-2026-0038',
-        client_name: 'Sarl Atlas Solutions',
-        client_email: 'finance@atlas-dz.com',
-        title: 'Full Stack Web Platform & Gateway Integration',
-        gross_total: 65000,
-        platform_commission: 1300, // 2% of 65000
-        state_tax: 3250,            // 5% of 65000
-        net_merchant_pay: 60450,    // 93% of 65000
-        payment_method: 'EDAHABIA',
-        payment_state: 'PAID_VERIFIED',
-        date: '2026-10-20'
-      },
-      {
-        id: 'tx_02',
-        invoice_number: 'INV-ANAE-2026-0039',
-        client_name: 'Karim Mecheri (EURL Sahel Tech)',
-        client_email: 'karim@saheltech.dz',
-        title: 'Enterprise Serverless Infrastructure & API Audit',
-        gross_total: 120000,
-        platform_commission: 2400, // 2% of 120000
-        state_tax: 6000,            // 5% of 120000
-        net_merchant_pay: 111600,   // 93% of 120000
-        payment_method: 'CIB',
-        payment_state: 'PAID_VERIFIED',
-        date: '2026-10-22'
-      },
-      {
-        id: 'tx_03',
-        invoice_number: 'INV-ANAE-2026-0040',
-        client_name: 'Nadia Boudiaf',
-        client_email: 'nadia.boudiaf@gmail.com',
-        title: 'SaaS SEO Audit & Technical Localization',
-        gross_total: 35000,
-        platform_commission: 700,  // 2% of 35000
-        state_tax: 1750,           // 5% of 35000
-        net_merchant_pay: 32550,   // 93% of 35000
-        payment_method: 'EDAHABIA',
-        payment_state: 'READY_FOR_APPROVAL',
-        date: '2026-10-24'
-      }
-    ];
-
-    const DEFAULT_LINKS = [
-      {
-        id: 'lk_01',
-        title: 'Annual SaaS Pro License & Maintenance',
-        slug: 'anae_saas_pro',
-        gross_total: 45000,
-        platform_commission: 900,
-        state_tax: 2250,
-        net_merchant_pay: 41850,
-        status: 'PAID_VERIFIED'
-      },
-      {
-        id: 'lk_02',
-        title: 'Mobile Application Technical Audit',
-        slug: 'anae_app_audit',
-        gross_total: 35000,
-        platform_commission: 700,
-        state_tax: 1750,
-        net_merchant_pay: 32550,
-        status: 'READY_FOR_APPROVAL'
-      }
-    ];
-
-    function getStoredVault() {
-      try {
-        const item = localStorage.getItem('anae_vault_data');
-        return item ? JSON.parse(item) : DEFAULT_VAULT;
-      } catch (e) {
-        return DEFAULT_VAULT;
-      }
+    // فتح وإغلاق الفاتورة
+    function openInvoiceModal() {
+      document.getElementById('invoiceModal').classList.remove('hidden');
+      document.getElementById('invoiceModal').classList.add('flex');
     }
-
-    function saveStoredVault(data) {
-      try {
-        localStorage.setItem('anae_vault_data', JSON.stringify(data));
-      } catch (e) {}
-    }
-
-    function getStoredTransactions() {
-      try {
-        const item = localStorage.getItem('anae_transactions_data');
-        return item ? JSON.parse(item) : DEFAULT_TRANSACTIONS;
-      } catch (e) {
-        return DEFAULT_TRANSACTIONS;
-      }
-    }
-
-    function saveStoredTransactions(list) {
-      try {
-        localStorage.setItem('anae_transactions_data', JSON.stringify(list));
-      } catch (e) {}
-    }
-
-    function getStoredLinks() {
-      try {
-        const item = localStorage.getItem('anae_links_data');
-        return item ? JSON.parse(item) : DEFAULT_LINKS;
-      } catch (e) {
-        return DEFAULT_LINKS;
-      }
-    }
-
-    function saveStoredLinks(list) {
-      try {
-        localStorage.setItem('anae_links_data', JSON.stringify(list));
-      } catch (e) {}
-    }
-
-    function formatDZD(num) {
-      const val = Number(num) || 0;
-      return new Intl.NumberFormat('fr-DZ', {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-      }).format(val) + ' د.ج';
-    }
-
-    // ---------------------------------------------------------------------------
-    // B. RECALCULATE ACCOUNTING LEDGER (2% PLATFORM YIELD & 5% ANAE TAX)
-    // ---------------------------------------------------------------------------
-    function updateLedgerMetrics() {
-      const txs = getStoredTransactions();
-      let totalGross = 0;
-      let totalPlatformCommission = 0;
-      let totalStateTax = 0;
-      let totalMerchantPay = 0;
-      let verifiedCount = 0;
-
-      txs.forEach(t => {
-        const gross = Number(t.gross_total !== undefined ? t.gross_total : (t.final_customer_payment || t.gross_amount || 0));
-        const platform = Number(t.platform_commission !== undefined ? t.platform_commission : Math.round(gross * 0.02 * 100) / 100);
-        const tax = Number(t.state_tax !== undefined ? t.state_tax : Math.round(gross * 0.05 * 100) / 100);
-        const merchant = Number(t.net_merchant_pay !== undefined ? t.net_merchant_pay : Math.round((gross - platform - tax) * 100) / 100);
-
-        if (t.payment_state === 'PAID_VERIFIED') {
-          totalGross += gross;
-          totalPlatformCommission += platform;
-          totalStateTax += tax;
-          totalMerchantPay += merchant;
-          verifiedCount++;
-        }
-      });
-
-      // 1. Gross Volume (المبلغ الإجمالي المعروض للزبون)
-      document.getElementById('metric-gross-volume').textContent = formatDZD(totalGross);
-      
-      // 2. Net Earnings: Displays ONLY the platform owner's 2% net fees!
-      document.getElementById('metric-net-earnings').textContent = formatDZD(totalPlatformCommission);
-      
-      // 3. State Tax Holdback (5%)
-      document.getElementById('metric-tax-holdback').textContent = formatDZD(totalStateTax);
-      
-      // 4. Net Merchant Pay (93%)
-      document.getElementById('metric-merchant-pay').textContent = formatDZD(totalMerchantPay);
-
-      document.getElementById('metric-total-orders').textContent = txs.length + ' transactions';
-
-      // Visual Split Allocation
-      document.getElementById('progress-merchant-amount').textContent = formatDZD(totalMerchantPay);
-      document.getElementById('progress-platform-amount').textContent = formatDZD(totalPlatformCommission);
-      document.getElementById('progress-tax-amount').textContent = formatDZD(totalStateTax);
-    }
-
-    // ---------------------------------------------------------------------------
-    // C. SYNC VAULT DISPLAY
-    // ---------------------------------------------------------------------------
-    function syncVaultDisplay() {
-      const v = getStoredVault();
-      document.getElementById('top-business-name').textContent = v.business_name;
-      document.getElementById('top-anae-card').textContent = v.anae_card_number;
-      document.getElementById('top-nif').textContent = v.nif;
-      
-      const ribStr = v.rib || '00799999000184920381';
-      document.getElementById('top-rib-display').textContent = ribStr.slice(0, 4) + '••••••••••••' + ribStr.slice(-4);
-
-      const badge = document.getElementById('nav-vault-status-badge');
-      if (v.status === 'ACTIVE') {
-        badge.textContent = 'ACTIVE';
-        badge.className = 'text-[9px] text-emerald-400 font-mono bg-emerald-950/80 border border-emerald-500/40 px-1.5 py-0.2 rounded';
-      } else {
-        badge.textContent = 'PENDING';
-        badge.className = 'text-[9px] text-amber-400 font-mono bg-amber-950/80 border border-amber-500/40 px-1.5 py-0.2 rounded';
-      }
-    }
-
-    // ---------------------------------------------------------------------------
-    // D. RENDER TRANSACTIONS TABLE
-    // ---------------------------------------------------------------------------
-    const STATUS_BADGES = {
-      PAID_VERIFIED: 'bg-emerald-950/60 text-emerald-400 border-emerald-500/40',
-      READY_FOR_APPROVAL: 'bg-blue-950/60 text-blue-400 border-blue-500/40',
-      SUBMITTED: 'bg-amber-950/60 text-amber-400 border-amber-500/40',
-      ACCEPTED: 'bg-teal-950/60 text-teal-400 border-teal-500/40',
-      DISCOVERED: 'bg-slate-800 text-slate-300 border-slate-700'
-    };
-
-    function renderTransactionsTable() {
-      const query = (document.getElementById('table-search-input')?.value || '').toLowerCase();
-      const stateFilter = document.getElementById('table-filter-state')?.value || 'ALL';
-      const txs = getStoredTransactions();
-
-      const tbody = document.getElementById('transactions-tbody');
-      tbody.innerHTML = '';
-
-      const filtered = txs.filter(t => {
-        const matchesQuery = (t.invoice_number || '').toLowerCase().includes(query) ||
-                             (t.client_name || '').toLowerCase().includes(query) ||
-                             (t.title || '').toLowerCase().includes(query);
-        const matchesState = (stateFilter === 'ALL') || (t.payment_state === stateFilter);
-        return matchesQuery && matchesState;
-      });
-
-      if (filtered.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="8" class="text-center py-6 text-slate-500">No transactions recorded.</td></tr>`;
-        return;
-      }
-
-      filtered.forEach(t => {
-        const gross = Number(t.gross_total !== undefined ? t.gross_total : (t.final_customer_payment || t.gross_amount || 0));
-        const platform = Number(t.platform_commission !== undefined ? t.platform_commission : Math.round(gross * 0.02 * 100) / 100);
-        const tax = Number(t.state_tax !== undefined ? t.state_tax : Math.round(gross * 0.05 * 100) / 100);
-        const merchant = Number(t.net_merchant_pay !== undefined ? t.net_merchant_pay : Math.round((gross - platform - tax) * 100) / 100);
-
-        const tr = document.createElement('tr');
-        tr.className = 'hover:bg-slate-800/40 transition-colors group cursor-pointer';
-        tr.onclick = () => openInvoiceModal(t);
-
-        const badgeClass = STATUS_BADGES[t.payment_state] || STATUS_BADGES.DISCOVERED;
-
-        tr.innerHTML = `
-          <td class="py-2.5 px-3 font-mono font-bold text-white group-hover:text-emerald-400 transition-colors">
-            ${t.invoice_number}
-            <div class="text-[9px] text-slate-500 font-mono">${t.date || ''}</div>
-          </td>
-          <td class="py-2.5 px-3">
-            <div class="font-medium text-slate-200">${t.client_name}</div>
-            <div class="text-[10px] text-slate-400 truncate max-w-[120px]">${t.title || ''}</div>
-          </td>
-          <td class="py-2.5 px-3 text-right font-mono font-bold text-white">${formatDZD(gross)}</td>
-          <td class="py-2.5 px-3 text-right font-mono font-bold text-emerald-400">${formatDZD(platform)}</td>
-          <td class="py-2.5 px-3 text-right font-mono font-medium text-amber-400">-${formatDZD(tax)}</td>
-          <td class="py-2.5 px-3 text-right font-mono font-medium text-cyan-400">${formatDZD(merchant)}</td>
-          <td class="py-2.5 px-3 text-center">
-            <span class="inline-block px-2 py-0.5 rounded text-[9px] font-mono font-bold border ${badgeClass}">
-              ${t.payment_state}
-            </span>
-          </td>
-          <td class="py-2.5 px-3 text-right" onclick="event.stopPropagation()">
-            <button onclick='openInvoiceModal(${JSON.stringify(t)})' class="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-emerald-400 transition-colors" title="View Official Invoice">
-              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-            </button>
-          </td>
-        `;
-        tbody.appendChild(tr);
-      });
-    }
-
-    // ---------------------------------------------------------------------------
-    // E. RENDER PAYMENT LINKS
-    // ---------------------------------------------------------------------------
-    function renderPaymentLinks() {
-      const container = document.getElementById('links-cards-grid');
-      const links = getStoredLinks();
-      container.innerHTML = '';
-
-      links.forEach(l => {
-        const gross = Number(l.gross_total !== undefined ? l.gross_total : (l.final_customer_payment || l.base_price || 0));
-        const platform = Number(l.platform_commission !== undefined ? l.platform_commission : Math.round(gross * 0.02 * 100) / 100);
-        const tax = Number(l.state_tax !== undefined ? l.state_tax : Math.round(gross * 0.05 * 100) / 100);
-        const merchant = Number(l.net_merchant_pay !== undefined ? l.net_merchant_pay : Math.round((gross - platform - tax) * 100) / 100);
-
-        const card = document.createElement('div');
-        card.className = 'bg-[#0f172a] border border-slate-800 rounded-xl p-4 sm:p-5 space-y-3.5 hover:border-slate-700 transition-colors flex flex-col justify-between';
-        card.innerHTML = `
-          <div class="space-y-3">
-            <div class="flex items-start justify-between gap-3">
-              <div>
-                <span class="text-[9px] font-mono text-emerald-400 font-semibold bg-emerald-950/60 border border-emerald-500/30 px-2 py-0.5 rounded">
-                  /${l.slug}
-                </span>
-                <h3 class="text-xs sm:text-sm font-bold text-white mt-1">${l.title}</h3>
-              </div>
-              <span class="px-2 py-0.5 rounded text-[9px] font-mono font-bold border ${STATUS_BADGES[l.status] || STATUS_BADGES.DISCOVERED}">
-                ${l.status}
-              </span>
-            </div>
-
-            <div class="p-3 rounded-lg bg-[#090d16] border border-slate-800/80 space-y-1.5 text-xs font-mono">
-              <div class="flex justify-between text-white font-bold">
-                <span>Gross Total (Buyer):</span>
-                <span>${formatDZD(gross)}</span>
-              </div>
-              <div class="flex justify-between text-emerald-400 text-[11px]">
-                <span>Platform Commission (2%):</span>
-                <span>${formatDZD(platform)}</span>
-              </div>
-              <div class="flex justify-between text-amber-400 text-[11px]">
-                <span>State ANAE Tax (5%):</span>
-                <span>-${formatDZD(tax)}</span>
-              </div>
-              <div class="flex justify-between text-cyan-400 font-bold pt-1 border-t border-slate-800 text-[11px]">
-                <span>Net Merchant Pay (93%):</span>
-                <span>${formatDZD(merchant)}</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="pt-3 border-t border-slate-800 flex items-center justify-between gap-2">
-            <button onclick="copyLinkSlug('${l.slug}')" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium border border-slate-700 flex items-center gap-1 cursor-pointer">
-              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
-              <span>Copy URL</span>
-            </button>
-            <button onclick='launchCheckoutSimulator(${JSON.stringify(l)})' class="px-3 py-1.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs font-semibold flex items-center gap-1.5 cursor-pointer">
-              <span>Test Checkout (${formatDZD(gross)})</span>
-            </button>
-          </div>
-        `;
-        container.appendChild(card);
-      });
-    }
-
-    function copyLinkSlug(slug) {
-      const url = `${window.location.origin}/pay/${slug}`;
-      navigator.clipboard.writeText(url);
-      alert('تم نسخ رابط الدفع المحدث إلى الحافظة بنجاح:\n' + url);
-    }
-
-    // ---------------------------------------------------------------------------
-    // F. VAULT SECURITY GATE WITH MASTER PASSWORD PROTECTION
-    // ---------------------------------------------------------------------------
-    let isVaultUnlocked = false;
-
-    async function hashPassword(str) {
-      const msgBuffer = new TextEncoder().encode(str);
-      const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
-      const hashArray = Array.from(new Uint8Array(hashBuffer));
-      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-    }
-
-    function openVaultModal() {
-      const modal = document.getElementById('vaultModal');
-      modal.classList.remove('hidden');
-      modal.classList.add('flex');
-
-      const savedHash = localStorage.getItem('anae_vault_master_hash');
-      const authView = document.getElementById('vault-auth-view');
-      const fieldsView = document.getElementById('vault-fields-view');
-      const setupContainer = document.getElementById('auth-setup-container');
-      const unlockContainer = document.getElementById('auth-unlock-container');
-      const errorBanner = document.getElementById('auth-error-banner');
-
-      errorBanner.classList.add('hidden');
-      errorBanner.textContent = '';
-
-      if (isVaultUnlocked) {
-        authView.classList.add('hidden');
-        fieldsView.classList.remove('hidden');
-        populateVaultFormFields();
-        return;
-      }
-
-      authView.classList.remove('hidden');
-      fieldsView.classList.add('hidden');
-
-      if (!savedHash) {
-        document.getElementById('auth-challenge-title').textContent = 'Initial Setup: Establish Master Password';
-        document.getElementById('auth-challenge-desc').textContent = 'يرجى إنشاء كلمة مرور رئيسية قوية لتأمين الخزنة والحساب البنكي الجزائري من العملاء والمتصفحين.';
-        setupContainer.classList.remove('hidden');
-        unlockContainer.classList.add('hidden');
-        setTimeout(() => document.getElementById('vault_new_pw')?.focus(), 100);
-      } else {
-        document.getElementById('auth-challenge-title').textContent = 'Master Password Authentication';
-        document.getElementById('auth-challenge-desc').textContent = 'أدخل كلمة المرور الرئيسية لفك تشفير وعرض إعدادات الخزنة المصرفية والمفاتيح السرية.';
-        setupContainer.classList.add('hidden');
-        unlockContainer.classList.remove('hidden');
-        document.getElementById('vault_auth_input').value = '';
-        setTimeout(() => document.getElementById('vault_auth_input')?.focus(), 100);
-      }
-    }
-
-    function closeVaultModal() {
-      const modal = document.getElementById('vaultModal');
-      modal.classList.add('hidden');
-      modal.classList.remove('flex');
-      isVaultUnlocked = false;
-    }
-
-    function lockVault() {
-      isVaultUnlocked = false;
-      openVaultModal();
-    }
-
-    async function handleSetupMasterPassword() {
-      const pw = document.getElementById('vault_new_pw').value;
-      const confirmPw = document.getElementById('vault_confirm_pw').value;
-      const errorBanner = document.getElementById('auth-error-banner');
-
-      if (!pw || pw.length < 6) {
-        errorBanner.textContent = 'كلمة المرور يجب أن تتكون من 6 أحرف على الأقل.';
-        errorBanner.classList.remove('hidden');
-        return;
-      }
-
-      if (pw !== confirmPw) {
-        errorBanner.textContent = 'كلمتا المرور غير متطابقتين. يرجى التحقق وإعادة الإدخال.';
-        errorBanner.classList.remove('hidden');
-        return;
-      }
-
-      const hashed = await hashPassword(pw);
-      localStorage.setItem('anae_vault_master_hash', hashed);
-
-      isVaultUnlocked = true;
-      document.getElementById('vault-auth-view').classList.add('hidden');
-      document.getElementById('vault-fields-view').classList.remove('hidden');
-      populateVaultFormFields();
-    }
-
-    async function handleUnlockVault() {
-      const input = document.getElementById('vault_auth_input');
-      const val = input.value;
-      const errorBanner = document.getElementById('auth-error-banner');
-      const savedHash = localStorage.getItem('anae_vault_master_hash');
-
-      if (!val) {
-        errorBanner.textContent = 'يرجى إدخال كلمة المرور.';
-        errorBanner.classList.remove('hidden');
-        input.classList.add('animate-shake', 'border-rose-500');
-        setTimeout(() => input.classList.remove('animate-shake'), 400);
-        return;
-      }
-
-      const inputHash = await hashPassword(val);
-
-      if (inputHash === savedHash) {
-        isVaultUnlocked = true;
-        errorBanner.classList.add('hidden');
-        document.getElementById('vault-auth-view').classList.add('hidden');
-        document.getElementById('vault-fields-view').classList.remove('hidden');
-        populateVaultFormFields();
-      } else {
-        input.value = '';
-        input.classList.add('animate-shake', 'border-rose-500');
-        errorBanner.textContent = 'كلمة المرور غير صحيحة! تم منع الوصول إلى الخزنة.';
-        errorBanner.classList.remove('hidden');
-        input.focus();
-        setTimeout(() => input.classList.remove('animate-shake'), 400);
-      }
-    }
-
-    function promptChangePassword() {
-      if (confirm('هل تريد تغيير كلمة المرور الرئيسية للخزنة؟')) {
-        localStorage.removeItem('anae_vault_master_hash');
-        isVaultUnlocked = false;
-        openVaultModal();
-      }
-    }
-
-    function populateVaultFormFields() {
-      const v = getStoredVault();
-      document.getElementById('v_business_name').value = v.business_name || '';
-      document.getElementById('v_anae_card').value = v.anae_card_number || '';
-      document.getElementById('v_nif').value = v.nif || '';
-      document.getElementById('v_bank_name').value = v.bank_name || 'Algérie Poste (BaridiMob / CCP)';
-      document.getElementById('v_rib').value = v.rib || '';
-      document.getElementById('v_chargily_pk').value = v.chargily_pk || '';
-      document.getElementById('v_chargily_sk').value = v.chargily_sk || '';
-      document.getElementById('v_live_mode').checked = !!v.live_mode;
-
-      const fb = document.getElementById('vaultFeedback');
-      fb.className = 'hidden';
-    }
-
-    function handleSaveVault(e) {
-      e.preventDefault();
-      const cleanNif = document.getElementById('v_nif').value.replace(/\D/g, '');
-      const cleanRib = document.getElementById('v_rib').value.replace(/\D/g, '');
-      const fb = document.getElementById('vaultFeedback');
-
-      // Modern Algerian NIF 20-digit validation check
-      if (cleanNif.length < 15 || cleanNif.length > 20) {
-        fb.className = 'p-2.5 rounded-lg border bg-rose-950/60 border-rose-500 text-rose-300 text-xs';
-        fb.textContent = 'الرقم التعريفي الجبائي NIF يجب أن يحتوي على ما بين 15 و 20 رقماً وفقاً للنظام الجزائري المحين.';
-        return;
-      }
-
-      if (cleanRib.length !== 20) {
-        fb.className = 'p-2.5 rounded-lg border bg-rose-950/60 border-rose-500 text-rose-300 text-xs';
-        fb.textContent = 'رقم الحساب البريدي أو البنكي الجزائري RIB يجب أن يتكون من 20 رقماً مع المفتاح.';
-        return;
-      }
-
-      const updatedVault = {
-        business_name: document.getElementById('v_business_name').value.trim(),
-        anae_card_number: document.getElementById('v_anae_card').value.trim(),
-        nif: cleanNif,
-        bank_name: document.getElementById('v_bank_name').value,
-        rib: cleanRib,
-        chargily_pk: document.getElementById('v_chargily_pk').value.trim(),
-        chargily_sk: document.getElementById('v_chargily_sk').value.trim(),
-        live_mode: document.getElementById('v_live_mode').checked,
-        status: 'ACTIVE'
-      };
-
-      saveStoredVault(updatedVault);
-      syncVaultDisplay();
-
-      fb.className = 'p-2.5 rounded-lg border bg-emerald-950/60 border-emerald-500 text-emerald-300 text-xs';
-      fb.textContent = 'تم حفظ بيانات المقاول الذاتي وربط بوابة الدفع بنجاح. حالة النظام: ACTIVE';
-
-      setTimeout(() => {
-        closeVaultModal();
-      }, 700);
-    }
-
-    // ---------------------------------------------------------------------------
-    // G. 2% & 5% MATRIX CALCULATION & PAYMENT LINK CREATION
-    // ---------------------------------------------------------------------------
-    function openCreateLinkModal() {
-      updateLinkCalculationMatrix();
-      const modal = document.getElementById('createLinkModal');
-      modal.classList.remove('hidden');
-      modal.classList.add('flex');
-    }
-
-    function closeCreateLinkModal() {
-      const modal = document.getElementById('createLinkModal');
-      modal.classList.add('hidden');
-      modal.classList.remove('flex');
-    }
-
-    function updateLinkCalculationMatrix() {
-      const gross = Number(document.getElementById('link_gross_amount')?.value) || 0;
-      // Fixed 2% Platform Commission
-      const platformFee = Math.round(gross * 0.02 * 100) / 100;
-      // Compliant 5% Algerian ANAE State Tax
-      const stateTax = Math.round(gross * 0.05 * 100) / 100;
-      // Net Merchant Pay: Gross - 2% - 5% = 93%
-      const merchantPay = Math.round((gross - platformFee - stateTax) * 100) / 100;
-
-      document.getElementById('preview-calc-platform').textContent = formatDZD(platformFee);
-      document.getElementById('preview-calc-tax').textContent = formatDZD(stateTax);
-      document.getElementById('preview-calc-merchant').textContent = formatDZD(merchantPay);
-    }
-
-    async function handleCreateLink(e) {
-      e.preventDefault();
-      const title = document.getElementById('link_title').value.trim();
-      const desc = document.getElementById('link_desc').value.trim();
-      const gross = Number(document.getElementById('link_gross_amount').value) || 0;
-      const clientName = document.getElementById('link_client_name').value.trim() || 'Client Valide';
-      const clientEmail = document.getElementById('link_client_email').value.trim() || 'client@dz.net';
-
-      const platformFee = Math.round(gross * 0.02 * 100) / 100;
-      const stateTax = Math.round(gross * 0.05 * 100) / 100;
-      const merchantPay = Math.round((gross - platformFee - stateTax) * 100) / 100;
-
-      const v = getStoredVault();
-      const notice = document.getElementById('chargilyStatusNotice');
-      const submitBtn = document.getElementById('btnSubmitLink');
-
-      const slug = 'anae_' + Math.random().toString(36).substring(2, 8);
-      const newLinkObj = {
-        id: 'lk_' + Date.now(),
-        title,
-        description: desc,
-        slug,
-        gross_total: gross,
-        platform_commission: platformFee,
-        state_tax: stateTax,
-        net_merchant_pay: merchantPay,
-        customer_name: clientName,
-        customer_email: clientEmail,
-        status: 'DISCOVERED'
-      };
-
-      const links = getStoredLinks();
-      links.unshift(newLinkObj);
-      saveStoredLinks(links);
-      renderPaymentLinks();
-
-      // Check if Chargily Secret Token exists
-      if (v.chargily_sk && (v.chargily_sk.startsWith('test_sk_') || v.chargily_sk.startsWith('live_sk_'))) {
-        const endpoint = v.live_mode
-          ? 'https://pay.chargily.net/api/v2/checkouts'
-          : 'https://pay.chargily.net/test/api/v2/checkouts';
-
-        notice.textContent = 'Calling Chargily API with Gross: ' + gross + ' DZD...';
-        submitBtn.disabled = true;
-
-        try {
-          const res = await fetch(endpoint, {
-            method: 'POST',
-            headers: {
-              'Authorization': `Bearer ${v.chargily_sk}`,
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              amount: gross,
-              currency: 'dzd',
-              payment_method: 'edahabia',
-              success_url: window.location.origin + '?status=success&slug=' + slug + '&gross=' + gross + '&title=' + encodeURIComponent(title),
-              failure_url: window.location.origin + '?status=failed&slug=' + slug,
-              description: `ANAE: ${title} (Gross: ${gross} DZD - Includes 5% IFU & 2% Platform Fee)`
-            })
-          });
-
-          const data = await res.json();
-          if (data && data.checkout_url) {
-            window.location.href = data.checkout_url;
-            return;
-          }
-        } catch (err) {
-          console.warn('Chargily API direct browser call returned (CORS/network fallback):', err);
-        } finally {
-          submitBtn.disabled = false;
-        }
-      }
-
-      // Seamless Instant Portal Launch Fallback
-      closeCreateLinkModal();
-      launchCheckoutSimulator(newLinkObj);
-    }
-
-    // ---------------------------------------------------------------------------
-    // H. CHECKOUT SIMULATOR & EXECUTION
-    // ---------------------------------------------------------------------------
-    let activeCheckoutItem = null;
-    let selectedMethod = 'EDAHABIA';
-
-    function launchCheckoutSimulator(item) {
-      activeCheckoutItem = item;
-      const gross = Number(item.gross_total !== undefined ? item.gross_total : (item.final_customer_payment || item.base_price || 0));
-      const platform = Number(item.platform_commission !== undefined ? item.platform_commission : Math.round(gross * 0.02 * 100) / 100);
-      const tax = Number(item.state_tax !== undefined ? item.state_tax : Math.round(gross * 0.05 * 100) / 100);
-
-      document.getElementById('ck-amount-display').textContent = formatDZD(gross);
-      document.getElementById('ck-title-display').textContent = item.title;
-
-      document.getElementById('ck-split-gross').textContent = formatDZD(gross);
-      document.getElementById('ck-split-platform').textContent = formatDZD(platform);
-      document.getElementById('ck-split-tax').textContent = formatDZD(tax);
-
-      selectCardMethod('EDAHABIA');
-
-      const modal = document.getElementById('checkoutModal');
-      modal.classList.remove('hidden');
-      modal.classList.add('flex');
-    }
-
-    function closeCheckoutModal() {
-      const modal = document.getElementById('checkoutModal');
-      modal.classList.add('hidden');
-      modal.classList.remove('flex');
-      activeCheckoutItem = null;
-    }
-
-    function selectCardMethod(method) {
-      selectedMethod = method;
-      const bEd = document.getElementById('card-btn-edahabia');
-      const bCib = document.getElementById('card-btn-cib');
-
-      if (method === 'EDAHABIA') {
-        bEd.className = 'p-2.5 rounded-lg border border-amber-500 bg-amber-950/20 text-white text-left';
-        bCib.className = 'p-2.5 rounded-lg border border-slate-700 bg-[#090d16] text-slate-400 text-left';
-      } else {
-        bEd.className = 'p-2.5 rounded-lg border border-slate-700 bg-[#090d16] text-slate-400 text-left';
-        bCib.className = 'p-2.5 rounded-lg border border-emerald-500 bg-emerald-950/20 text-white text-left';
-      }
-    }
-
-    function executeCustomerPayment() {
-      if (!activeCheckoutItem) return;
-
-      const btn = document.getElementById('btnExecuteCheckout');
-      btn.disabled = true;
-      btn.textContent = 'Processing with SATIM & Chargily...';
-
-      setTimeout(() => {
-        const item = activeCheckoutItem;
-        const gross = Number(item.gross_total !== undefined ? item.gross_total : (item.final_customer_payment || item.base_price || 0));
-        const platform = Number(item.platform_commission !== undefined ? item.platform_commission : Math.round(gross * 0.02 * 100) / 100);
-        const tax = Number(item.state_tax !== undefined ? item.state_tax : Math.round(gross * 0.05 * 100) / 100);
-        const merchant = Number(item.net_merchant_pay !== undefined ? item.net_merchant_pay : Math.round((gross - platform - tax) * 100) / 100);
-
-        const seq = Math.floor(Math.random() * 8000 + 1000);
-        const invNum = `INV-ANAE-2026-${seq}`;
-
-        const newTx = {
-          id: 'tx_' + Date.now(),
-          invoice_number: invNum,
-          client_name: item.customer_name || 'Client Valide',
-          client_email: item.customer_email || 'client@dz.net',
-          title: item.title,
-          gross_total: gross,
-          platform_commission: platform,
-          state_tax: tax,
-          net_merchant_pay: merchant,
-          payment_method: selectedMethod,
-          payment_state: 'PAID_VERIFIED',
-          date: new Date().toISOString().split('T')[0]
-        };
-
-        // Persist transaction
-        const txs = getStoredTransactions();
-        txs.unshift(newTx);
-        saveStoredTransactions(txs);
-
-        // Update link
-        const links = getStoredLinks();
-        links.forEach(l => {
-          if (l.id === item.id) l.status = 'PAID_VERIFIED';
-        });
-        saveStoredLinks(links);
-
-        // Cache last transaction variables explicitly
-        cacheLastTransaction(newTx);
-
-        updateLedgerMetrics();
-        renderTransactionsTable();
-        renderPaymentLinks();
-
-        btn.disabled = false;
-        btn.textContent = 'Confirmer et Payer (Chargily Gateway)';
-        closeCheckoutModal();
-
-        // Immediately open official invoice!
-        openInvoiceModal(newTx);
-      }, 650);
-    }
-
-    // ---------------------------------------------------------------------------
-    // I. CLIENT-SIDE PERSISTENCE & PDF ENGINE REPAIR
-    // ---------------------------------------------------------------------------
-    let currentInvoiceData = null;
-
-    function cacheLastTransaction(tx) {
-      try {
-        localStorage.setItem('lastGrossAmount', tx.gross_total || tx.gross_amount || '15000');
-        localStorage.setItem('lastServiceDesc', tx.title || 'Prestation Numérique');
-        localStorage.setItem('lastInvoiceNumber', tx.invoice_number || 'INV-ANAE-2026-0001');
-        localStorage.setItem('lastClientName', tx.client_name || 'Client Valide');
-        localStorage.setItem('lastPaymentMethod', tx.payment_method || 'EDAHABIA');
-        localStorage.setItem('lastInvoiceObject', JSON.stringify(tx));
-      } catch (e) {}
-    }
-
-    function handleOpenLatestInvoicePdf() {
-      // Check cached variables or latest transaction
-      const txs = getStoredTransactions();
-      let targetTx = null;
-
-      if (txs && txs.length > 0) {
-        targetTx = txs[0];
-      } else {
-        const cachedObj = localStorage.getItem('lastInvoiceObject');
-        if (cachedObj) {
-          try { targetTx = JSON.parse(cachedObj); } catch(e){}
-        }
-      }
-
-      if (!targetTx) {
-        // Fallback reconstructed from cache or default
-        const fallbackGross = Number(localStorage.getItem('lastGrossAmount')) || 15000;
-        const fallbackTitle = localStorage.getItem('lastServiceDesc') || 'Prestation Numérique';
-        const fallbackInvoice = localStorage.getItem('lastInvoiceNumber') || 'INV-ANAE-2026-0001';
-        const fallbackClient = localStorage.getItem('lastClientName') || 'Client Valide';
-        const fallbackMethod = localStorage.getItem('lastPaymentMethod') || 'EDAHABIA';
-
-        targetTx = {
-          id: 'tx_cached',
-          invoice_number: fallbackInvoice,
-          client_name: fallbackClient,
-          client_email: 'client@dz.net',
-          title: fallbackTitle,
-          gross_total: fallbackGross,
-          platform_commission: Math.round(fallbackGross * 0.02 * 100) / 100,
-          state_tax: Math.round(fallbackGross * 0.05 * 100) / 100,
-          net_merchant_pay: Math.round(fallbackGross * 0.93 * 100) / 100,
-          payment_method: fallbackMethod,
-          payment_state: 'PAID_VERIFIED',
-          date: new Date().toISOString().split('T')[0]
-        };
-      }
-
-      openInvoiceModal(targetTx);
-    }
-
-    function checkPaymentCallback() {
-      const urlParams = new URLSearchParams(window.location.search);
-      const status = urlParams.get('status');
-
-      if (status === 'success') {
-        const grossParam = Number(urlParams.get('gross')) || Number(urlParams.get('amount')) || 15000;
-        const titleParam = urlParams.get('title') || urlParams.get('desc') || 'Prestation Numérique';
-        const slugParam = urlParams.get('slug') || 'checkout';
-
-        const platformFee = Math.round(grossParam * 0.02 * 100) / 100;
-        const stateTax = Math.round(grossParam * 0.05 * 100) / 100;
-        const merchantPay = Math.round((grossParam - platformFee - stateTax) * 100) / 100;
-
-        const seq = Math.floor(Math.random() * 8000 + 1000);
-        const invNum = `INV-ANAE-2026-${seq}`;
-
-        const newCallbackTx = {
-          id: 'tx_' + Date.now(),
-          invoice_number: invNum,
-          client_name: 'Client Valide (Chargily)',
-          client_email: 'client@dz.net',
-          title: decodeURIComponent(titleParam),
-          gross_total: grossParam,
-          platform_commission: platformFee,
-          state_tax: stateTax,
-          net_merchant_pay: merchantPay,
-          payment_method: 'EDAHABIA',
-          payment_state: 'PAID_VERIFIED',
-          date: new Date().toISOString().split('T')[0]
-        };
-
-        // Cache parameters into browser LocalStorage as requested
-        cacheLastTransaction(newCallbackTx);
-
-        const txs = getStoredTransactions();
-        txs.unshift(newCallbackTx);
-        saveStoredTransactions(txs);
-
-        updateLedgerMetrics();
-        renderTransactionsTable();
-
-        alert('✅ تم تأكيد الدفع بنجاح عبر بوابة Chargily Pay! جاري فتح الفاتورة الرسمية وتحضير ملف PDF...');
-        openInvoiceModal(newCallbackTx);
-      }
-    }
-
-    function openInvoiceModal(tx) {
-      currentInvoiceData = tx;
-      cacheLastTransaction(tx);
-      const v = getStoredVault();
-
-      const gross = Number(tx.gross_total !== undefined ? tx.gross_total : (tx.final_customer_payment || tx.gross_amount || 0));
-      const platform = Number(tx.platform_commission !== undefined ? tx.platform_commission : Math.round(gross * 0.02 * 100) / 100);
-      const tax = Number(tx.state_tax !== undefined ? tx.state_tax : Math.round(gross * 0.05 * 100) / 100);
-      const merchant = Number(tx.net_merchant_pay !== undefined ? tx.net_merchant_pay : Math.round((gross - platform - tax) * 100) / 100);
-
-      document.getElementById('inv-modal-number').textContent = tx.invoice_number;
-      document.getElementById('inv-doc-number').textContent = tx.invoice_number;
-      document.getElementById('inv-doc-date').textContent = tx.date || new Date().toISOString().split('T')[0];
-      document.getElementById('inv-doc-method').textContent = tx.payment_method || 'EDAHABIA';
-
-      document.getElementById('inv-prestataire-name').textContent = v.business_name;
-      document.getElementById('inv-prestataire-nif').textContent = v.nif;
-      document.getElementById('inv-prestataire-card').textContent = v.anae_card_number;
-      document.getElementById('inv-prestataire-rib').textContent = v.rib;
-
-      document.getElementById('inv-client-name').textContent = tx.client_name;
-      document.getElementById('inv-client-email').textContent = tx.client_email || 'client@dz.net';
-
-      document.getElementById('inv-item-title').textContent = tx.title || 'Prestation Numérique / Service';
-      document.getElementById('inv-item-gross').textContent = new Intl.NumberFormat('fr-DZ', { minimumFractionDigits: 2 }).format(gross);
-      document.getElementById('inv-item-platform').textContent = new Intl.NumberFormat('fr-DZ', { minimumFractionDigits: 2 }).format(platform);
-      document.getElementById('inv-item-tax').textContent = new Intl.NumberFormat('fr-DZ', { minimumFractionDigits: 2 }).format(tax);
-
-      document.getElementById('inv-sum-gross').textContent = new Intl.NumberFormat('fr-DZ', { minimumFractionDigits: 2 }).format(gross) + ' DZD';
-      document.getElementById('inv-sum-platform').textContent = '-' + new Intl.NumberFormat('fr-DZ', { minimumFractionDigits: 2 }).format(platform) + ' DZD';
-      document.getElementById('inv-sum-tax').textContent = '-' + new Intl.NumberFormat('fr-DZ', { minimumFractionDigits: 2 }).format(tax) + ' DZD';
-      document.getElementById('inv-sum-net').textContent = new Intl.NumberFormat('fr-DZ', { minimumFractionDigits: 2 }).format(merchant) + ' DZD';
-
-      // SVG QR Matrix
-      const qrPayload = `ANAE|${tx.invoice_number}|GROSS:${gross}|PLATFORM_FEE_2%:${platform}|TAX_5%:${tax}|NET_MERCHANT:${merchant}|NIF:${v.nif}`;
-      renderSvgQr(qrPayload, 'inv-qr-container');
-
-      const modal = document.getElementById('invoicePreviewModal');
-      modal.classList.remove('hidden');
-      modal.classList.add('flex');
-    }
-
     function closeInvoiceModal() {
-      const modal = document.getElementById('invoicePreviewModal');
-      modal.classList.add('hidden');
-      modal.classList.remove('flex');
+      document.getElementById('invoiceModal').classList.add('hidden');
+      document.getElementById('invoiceModal').classList.remove('flex');
     }
 
-    // Dynamic PDF Download using html2pdf.js with scale: 2 and useCORS: true to prevent mobile text clipping
-    function downloadInvoicePDF() {
-      if (!currentInvoiceData) return;
-      const element = document.getElementById('printInvoiceArea');
-      const btn = document.getElementById('btnDownloadPdf');
-
-      const originalBtnHtml = btn.innerHTML;
-      btn.disabled = true;
-      btn.innerHTML = `<span class="animate-spin inline-block mr-1">⏳</span> جاري تجهيز PDF...`;
-
-      const invNumber = currentInvoiceData.invoice_number || 'facture_anae';
-      const opt = {
-        margin: [6, 6, 6, 6],
-        filename: `${invNumber}.pdf`,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: {
-          scale: 2,
-          useCORS: true,
-          letterRendering: true,
-          scrollX: 0,
-          scrollY: 0,
-          windowWidth: document.documentElement.offsetWidth
-        },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-      };
-
-      html2pdf().set(opt).from(element).save().then(() => {
-        btn.disabled = false;
-        btn.innerHTML = originalBtnHtml;
-      }).catch(err => {
-        console.error('PDF generation error:', err);
-        btn.disabled = false;
-        btn.innerHTML = originalBtnHtml;
-        window.print();
-      });
+    // تصدير CSV
+    function exportCSV() {
+      const csvContent = "\uFEFFInvoice,Client,Date,Gross,Fee_2%,Tax_5%,Net_93%,Status\n" +
+                         "INV-ANAE-2026-1706,Ishak,2026-10-25,15000.00,300.00,750.00,13950.00,PAID_VERIFIED\n";
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      link.setAttribute("download", "anae_ledger_report.csv");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     }
 
-    function renderSvgQr(val, containerId) {
-      const container = document.getElementById(containerId);
-      if (!container) return;
-      container.innerHTML = `
-        <svg width="56" height="56" viewBox="0 0 21 21" class="border border-slate-300 bg-white p-0.5 rounded shrink-0">
-          <rect width="21" height="21" fill="#fff"/>
-          <rect x="1" y="1" width="5" height="5" fill="#0f172a"/>
-          <rect x="15" y="1" width="5" height="5" fill="#0f172a"/>
-          <rect x="1" y="15" width="5" height="5" fill="#0f172a"/>
-          <rect x="2" y="2" width="3" height="3" fill="#fff"/>
-          <rect x="16" y="2" width="3" height="3" fill="#fff"/>
-          <rect x="2" y="16" width="3" height="3" fill="#fff"/>
-          <rect x="7" y="1" width="7" height="1" fill="#0f172a"/>
-          <rect x="7" y="5" width="7" height="1" fill="#0f172a"/>
-          <rect x="1" y="7" width="1" height="7" fill="#0f172a"/>
-          <rect x="5" y="7" width="1" height="7" fill="#0f172a"/>
-          <rect x="9" y="9" width="3" height="3" fill="#0f172a"/>
-          <rect x="13" y="11" width="2" height="4" fill="#0f172a"/>
-          <rect x="11" y="15" width="4" height="2" fill="#0f172a"/>
-        </svg>
-        <div class="text-[8px] sm:text-[9px] text-slate-600 leading-tight">
-          <div class="font-bold text-slate-800">Contrôle Fiscale</div>
-          <div class="font-mono text-emerald-700 font-bold">PAID_VERIFIED</div>
-          <div class="font-mono text-slate-500">ANAE Fee 2% · IFU 5%</div>
-        </div>
-      `;
-    }
-
-    // ---------------------------------------------------------------------------
-    // J. VIEW SWITCHER
-    // ---------------------------------------------------------------------------
-    function switchView(tab) {
-      document.getElementById('view-overview').classList.add('hidden');
-      document.getElementById('view-links').classList.add('hidden');
-      document.getElementById('view-invoices').classList.add('hidden');
-
-      document.getElementById('nav-btn-overview').className = 'hover:text-white py-1 transition-colors whitespace-nowrap shrink-0';
-      document.getElementById('nav-btn-links').className = 'hover:text-white py-1 transition-colors whitespace-nowrap shrink-0';
-      document.getElementById('nav-btn-invoices').className = 'hover:text-white py-1 transition-colors whitespace-nowrap shrink-0';
-
-      document.getElementById('mob-nav-overview').className = 'px-2.5 py-1 rounded text-slate-400 whitespace-nowrap';
-      document.getElementById('mob-nav-links').className = 'px-2.5 py-1 rounded text-slate-400 whitespace-nowrap';
-      document.getElementById('mob-nav-invoices').className = 'px-2.5 py-1 rounded text-slate-400 whitespace-nowrap';
-
-      if (tab === 'overview') {
-        document.getElementById('view-overview').classList.remove('hidden');
-        document.getElementById('nav-btn-overview').className = 'text-white border-b-2 border-emerald-500 font-semibold py-1 transition-colors whitespace-nowrap shrink-0';
-        document.getElementById('mob-nav-overview').className = 'px-2.5 py-1 rounded text-emerald-400 font-semibold bg-emerald-950/50 whitespace-nowrap';
-      } else if (tab === 'links') {
-        document.getElementById('view-links').classList.remove('hidden');
-        document.getElementById('nav-btn-links').className = 'text-white border-b-2 border-emerald-500 font-semibold py-1 transition-colors whitespace-nowrap shrink-0';
-        document.getElementById('mob-nav-links').className = 'px-2.5 py-1 rounded text-emerald-400 font-semibold bg-emerald-950/50 whitespace-nowrap';
-        renderPaymentLinks();
-      } else if (tab === 'invoices') {
-        document.getElementById('view-invoices').classList.remove('hidden');
-        document.getElementById('nav-btn-invoices').className = 'text-white border-b-2 border-emerald-500 font-semibold py-1 transition-colors whitespace-nowrap shrink-0';
-        document.getElementById('mob-nav-invoices').className = 'px-2.5 py-1 rounded text-emerald-400 font-semibold bg-emerald-950/50 whitespace-nowrap';
-        const table = document.querySelector('#view-overview > div:last-child');
-        if (table) {
-          document.getElementById('invoices-list-container').innerHTML = '';
-          document.getElementById('invoices-list-container').appendChild(table.cloneNode(true));
-        }
+    // تنبيه الرصيد المعلق
+    function checkPayoutThreshold(pendingAmount, thresholdLimit) {
+      const alertBanner = document.getElementById('payout-alert-banner');
+      if (pendingAmount > thresholdLimit) {
+        alertBanner.classList.remove('hidden');
+        document.getElementById('alert-pending-val').innerText = pendingAmount.toLocaleString() + ' DZD';
+        document.getElementById('alert-threshold-val').innerText = thresholdLimit.toLocaleString() + ' DZD';
+      } else {
+        alertBanner.classList.add('hidden');
       }
     }
 
-    // ---------------------------------------------------------------------------
-    // K. INITIAL BOOTSTRAP
-    // ---------------------------------------------------------------------------
+    function settlePendingPayout() {
+      alert("تمت تسوية الرصيد وتحويل المستحقات لحسابك البنكي / BaridiMob بنجاح.");
+      document.getElementById('payout-alert-banner').classList.add('hidden');
+      document.getElementById('metric-pending').innerText = '0.00 DZD';
+    }
+
+    // تهيئة عامة
     window.addEventListener('DOMContentLoaded', () => {
-      if (!localStorage.getItem('anae_vault_data')) {
-        saveStoredVault(DEFAULT_VAULT);
-      }
-      if (!localStorage.getItem('anae_transactions_data')) {
-        saveStoredTransactions(DEFAULT_TRANSACTIONS);
-      }
-      if (!localStorage.getItem('anae_links_data')) {
-        saveStoredLinks(DEFAULT_LINKS);
-      }
-
-      syncVaultDisplay();
-      updateLedgerMetrics();
-      renderTransactionsTable();
-      renderPaymentLinks();
-      checkPaymentCallback();
+      // فحص أولي للرصيد المعلق (مثال: رصيد معلق 0 حالياً)
+      checkPayoutThreshold(0, 50000);
     });
   </script>
 </body>
